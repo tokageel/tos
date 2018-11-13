@@ -51,7 +51,7 @@ local function scanCollections()
     local collectionInfo = GET_COLLECTION_INFO(collectionClass, collection, etcObject, {})
 
     -- 冒険日誌の対象かつ収集完了状態ではないコレクションを対象とする
-    if (collectionClass.Journal and (collectionInfo.status ~= 2)) then
+    if ((collectionClass.Journal == "TRUE") and (collectionInfo.status ~= 2)) then
       -- コレクション名と収集状況を格納
       local currentCount, collectionCount = GET_COLLECTION_COUNT(collectionClass.ClassID, collection)
       remainCollection = {}
