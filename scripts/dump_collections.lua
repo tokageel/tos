@@ -1,5 +1,5 @@
 --[[
-dump_collection_status.lua
+dump_collections.lua
 
 登録していないコレクションアイテムについてtosbaseのURLを出力するスクリプト.
 UIをもたないのでコンソールからdofile()で実行すること.
