@@ -6,6 +6,8 @@
 
 `os.execute()`で`START http://〜〜〜〜`してるだけです。
 
+![tkgbroserimage](./tkgbrowser_image.png "イメージ")
+
 ## Usage
 
 アドオンマネージャには登録していませんので、手動でのインストールが必要です。
