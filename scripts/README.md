@@ -14,7 +14,7 @@
 1. チャット欄に`/dev`と入力してコンソールを開く
 2. コンソールに`dofile("../dump_collections.lua")`と入力する
 
-ToSのインストール先にdump_collection.txtというテキストファイルが出力されます.
+ToSのインストール先にdump_collections.txtというテキストファイルが出力されます.
 出力形式は以下のような形です.
 
 ![img_dump_collections](./dump_collections.png)

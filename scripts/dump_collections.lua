@@ -1,11 +1,10 @@
---[[
-dump_collections.lua
+---
+-- dump_collections.lua
+-- 登録していないコレクションアイテムについてtosbaseのURLを出力するスクリプト.
+-- UIをもたないのでコンソールからdofile()で実行すること.
 
-登録していないコレクションアイテムについてtosbaseのURLを出力するスクリプト.
-UIをもたないのでコンソールからdofile()で実行すること.
---]]
 local BASE_ITEM_URL = "https://tos-jp.neet.tv/items"
-local DUMP_FILE_PATH = "../dump_collection.txt"
+local DUMP_FILE_PATH = "../dump_collections.txt"
 
 --- タイムスタンプの文字列表現を返す.
 -- @return タイムスタンプの文字列表現.
@@ -16,26 +15,25 @@ local function getCurrentTimeString()
     now['hour'], now['min'], now['sec'])
 end
 
---- コレクション情報を収集する.
+---
+-- コレクション情報を収集する.
 -- 収集対象とするのは、コレクション画面に表示されるものかつ完成状態ではないもの.
 -- 返却値は以下の形式.
---[[
-[
-  {
-    name: string コレクション名（dictID_XXX形式）
-    count: number コレクション対象のアイテムの数
-    remain: number コレクション対象のアイテムのうち、未収集のアイテムの数
-    items: [
-      {
-        id: number tosbase上のID
-        name: string アイテム名（dictID_XXX形式）
-      },
-      {...}
-    ]
-  },
-  {...}
-]
---]]
+-- [
+--   {
+--     name: string コレクション名（dictID_XXX形式）
+--     count: number コレクション対象のアイテムの数
+--     remain: number コレクション対象のアイテムのうち、未収集のアイテムの数
+--     items: [
+--       {
+--         id: number tosbase上のID
+--         name: string アイテム名（dictID_XXX形式）
+--       },
+--       {...}
+--     ]
+--   },
+--   {...}
+-- ]
 -- @return コレクション情報.
 local function scanCollections()
   local collectionClasses, collectionClassCount = GetClassList("Collection")
@@ -86,30 +84,33 @@ local function scanCollections()
   return remainCollections
 end
 
+---
 -- アイテム1件分の文字列表現を返す.
 -- @param item 文字列化するアイテム.
 -- @return 引数で指定したアイテムの文字列表現.
 local function itemToString(item)
   return string.format("  %s - %s/%d\n",
-   dictionary.ReplaceDicIDInCompStr(item.name),
-   BASE_ITEM_URL,
-   item.id)
+    dictionary.ReplaceDicIDInCompStr(item.name),
+    BASE_ITEM_URL,
+    item.id)
 end
 
---- コレクション1件分の文字列表現を返す.
+---
+-- コレクション1件分の文字列表現を返す.
 -- @param collection 文字列化するコレクション.
 -- @return 引数で指定したコレクションの文字列表現.
 local function collectionToString(collection)
   local str = string.format("%s (%d / %d)\n",
-   dictionary.ReplaceDicIDInCompStr(collection.name),
-   collection.remain, collection.count)
-   for index, item in pairs(collection.items) do
+    dictionary.ReplaceDicIDInCompStr(collection.name),
+    collection.remain, collection.count)
+  for index, item in pairs(collection.items) do
     str = str .. itemToString(item)
   end
   return str
 end
 
---- エントリポイント.
+---
+-- エントリポイント.
 local function main()
   -- コレクション情報を収集
   local collections = scanCollections()
@@ -127,7 +128,7 @@ local function main()
         local result, msg, code = file:write((body), "\n")
         if (not result) then
           print(string.format("[ERROR] %s (code=%d)", msg, code))
-          break;
+          break
         end
       end
     else
