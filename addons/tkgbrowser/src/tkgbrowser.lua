@@ -137,7 +137,7 @@ end
 function TKGBROWSER_ON_CLICKED_COLLECTION_NAME(parent, ctrl)
   local nameText = GET_CHILD_RECURSIVELY(parent, "collectionNameText")
   local name = nameText:GetTextByKey("name")
-  local classId = searchCollectionItemClassIdByName(name)
+  local classId = TKGBROWSER_SEARCH_COLLECTION_ITEM_CLASS_ID(name)
   if classId then
     TKGBROWSER_OPEN_BROWSER(classId)
   end
