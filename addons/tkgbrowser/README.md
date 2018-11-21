@@ -18,10 +18,10 @@
 ```bash
 <ToSインストール先>
 ├addons/
-│ └_tkgbrowser-🦎-vX.X.X.ipf: ダウンロードしたファイルを格納
+│  └tkgbrowser/: 手動でフォルダを作成する
+│    └settings.json: 任意
 └data/
-   └tkgbrowser/: 手動でフォルダを作成する
-     └settings.json: 任意
+  └_tkgbrowser-🦎-vX.X.X.ipf: ダウンロードしたファイルを格納
 ```
 
 ## Configuration
