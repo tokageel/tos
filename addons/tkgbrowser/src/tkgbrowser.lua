@@ -195,9 +195,15 @@ end
 -- @return URL向けのアイテムID.
 function TKGBROWSER_GET_ITEM_CLASS_ID(itemClass)
   local itemId = itemClass.ClassID
-  local isTosbase = (string.find(g.settings.base_url_item, "^https://[^/]+\.neet\.tv/") ~= nil)
-  if (isTosbase and (itemClass.GroupName == "Recipe")) then
-    itemId = itemId + 6200000
+  if (itemClass.GroupName == "Recipe") then
+    if (string.find(g.settings.base_url_item, "^https://[^/]+%.neet%.tv/") ~= nil) then
+      itemId = itemId + 6200000
+    elseif (string.find(g.settings.base_url_item, "^http://ir%-norn%.github%.io/") ~= nil) then
+      local recipeClass = GetClass("Recipe", itemClass.ClassName)
+      if recipeClass then
+        itemId = recipeClass.ClassID
+      end
+    end
   end
   return itemId
 end
