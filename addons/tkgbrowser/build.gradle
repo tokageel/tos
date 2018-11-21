@@ -1,0 +1,60 @@
+/*
+ * build.gradle
+ */
+apply plugin: IpfPlugin
+
+addon {
+    name = 'tkgbrowser'
+    version = '0.0.2'
+    unicode = '🦎'
+}
+
+class IpfPlugin implements Plugin<Project> {
+
+    @Override
+    void apply(Project project) {
+        project.extensions.create("addon", IpfPluginExtension)
+
+        project.task('clean', type:Delete) {
+            delete project.file("${project.buildDir}")
+        }
+
+        project.task('build', dependsOn:'clean') << {
+            project.copy {
+                from 'src'
+                into "${project.buildDir}/${project.addon.intermediatePath}"
+            }
+            project.exec {
+                workingDir "${project.buildDir}"
+                commandLine 'ipf',  "${project.addon.ipfFileName}", "${project.addon.name}"
+            }
+        }
+
+        project.task('info', dependsOn:'clean') << {
+            println "--- IN ---"
+            println "name: ${project.addon.name}"
+            println "version: ${project.addon.version}"
+            println "unicode: ${project.addon.unicode}"
+            println "--- OUT ---"
+            println "filename: ${project.addon.getIpfFileName()}"
+            println "intermediate: ${project.addon.getIntermediatePath()}"
+        }
+    }
+
+}
+
+class IpfPluginExtension {
+
+    String name
+    String version
+    String unicode
+
+    String getIntermediatePath() {
+        return "${name}/addon_d.ipf/${name}"
+    }
+
+    String getIpfFileName() {
+        return "_${name}-${unicode}-v${version}.ipf"
+    }
+
+}
