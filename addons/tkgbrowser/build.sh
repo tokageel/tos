@@ -1,6 +1,6 @@
 #!/bin/sh
 ADDON_NAME="tkgbrowser"
-VERSION="v0.0.1"
+VERSION="v0.0.2"
 UNICODE=🦎
 
 rm -r build/*
