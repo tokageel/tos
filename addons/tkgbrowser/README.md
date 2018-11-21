@@ -4,8 +4,6 @@
 
 冒険日誌ウィンドウのコレクション画面からWindowsの規定ブラウザを起動し、[tosjbase](https://tos-jp.neet.tv/)のアイテム検索結果を表示するためのアドオンです。
 
-`os.execute()`で`START http://〜〜〜〜`してるだけです。
-
 ![tkgbroserimage](./tkgbrowser_image.png "イメージ")
 
 ## Usage
