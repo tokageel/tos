@@ -103,7 +103,7 @@ function TKGBROWSER_OPEN_BROWSER(itemClassId)
     pcall(
       function()
         local url = string.format(g.settings.base_url_item, itemClassId)
-        os.execute("START " .. url)
+        login.OpenURL(url)
       end
     )
   end
