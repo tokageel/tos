@@ -22,7 +22,7 @@ local USER_VALUE_KEY_ITEM_ID = "ITEM_ID"
 local Addon = {
   name = "TKGBROWSER",
   author = "TOKAGEEL",
-  version = "0.0.2"
+  version = "0.0.3"
 }
 
 ---
