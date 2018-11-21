@@ -178,14 +178,34 @@ function TKGBROWSER_ON_RELOADED_COLLECTION_DETAIL(frame, message)
   for i = 1, collectionItemSetCount do
       local itemClass = GetClass("Item", collectionClass["ItemName_" .. i])
       if itemClass then
+        local itemClassId = TKGBROWSER_GET_ITEM_CLASS_ID(itemClass)
         local controlSet = collectionItemBox:GetChildByIndex(i)
         local itemPic = GET_CHILD(controlSet, "itemPic")
         if itemPic then
-          itemPic:SetUserValue(USER_VALUE_KEY_ITEM_ID, itemClass.ClassID)
+          itemPic:SetUserValue(USER_VALUE_KEY_ITEM_ID, itemClassId)
           itemPic:SetEventScript(ui.LBUTTONUP, "TKGBROWSER_ON_CLICKED_COLLECTION_ITEM_ICON")
         end
       end
   end
+end
+
+---
+-- 指定したアイテムのURL向けIDを返す.
+-- @param itemClass アイテムクラス（非nil）.
+-- @return URL向けのアイテムID.
+function TKGBROWSER_GET_ITEM_CLASS_ID(itemClass)
+  local itemId = itemClass.ClassID
+  if (itemClass.GroupName == "Recipe") then
+    if (string.find(g.settings.base_url_item, "^https://[^/]+%.neet%.tv/") ~= nil) then
+      itemId = itemId + 6200000
+    elseif (string.find(g.settings.base_url_item, "^http://ir%-norn%.github%.io/") ~= nil) then
+      local recipeClass = GetClass("Recipe", itemClass.ClassName)
+      if recipeClass then
+        itemId = recipeClass.ClassID
+      end
+    end
+  end
+  return itemId
 end
 
 ---
