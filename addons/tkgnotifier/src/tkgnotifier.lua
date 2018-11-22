@@ -26,22 +26,25 @@ local Addon = {
 ---
 -- 表示設定.
 -- @field colorWarnings 通常システムメッセージ文字色.
+-- @field colorNotify 通知メッセージ文字色.
 -- @table Appearances
 local Appearances = {
-  colorWarnings = "616161"
+  colorWarnings = "616161",
+  colorNotify = "FF00FF"
 }
 
 ---
 -- 指定した文字列をシステムログとしてチャットウィンドウへ出力する.
 -- @param message 出力する文字列.
 local function log(message)
-  if message == nil then
-    message = "nil"
-  elseif (type(message) ~= "string") then
-    message = tostring(message)
-  end
+  CHAT_SYSTEM(string.format("[%s] %s", Addon.name, tostring(message)), Appearances.colorWarnings)
+end
 
-  CHAT_SYSTEM(string.format("[%s] %s", Addon.name, message), Appearances.colorWarnings)
+---
+-- 指定した文字列を目立ちそうな色でチャットウィンドウへ出力する.
+-- @param message 出力する文字列.
+local function notify(message)
+  CHAT_SYSTEM(string.format("[%s] %s", Addon.name, tostring(message)), Appearances.colorNotify)
 end
 
 ---
@@ -69,6 +72,34 @@ if not g.loaded then
 end
 
 ---
+-- 期限が近づいているアイテム付きのメールが存在するかを確認する.
+-- @return 期限が近いアイテム付きのメールが存在する場合はtrue. それ以外の場合はfalse.
+function TKGNOTIFIER_HAS_DEADLINE_MAIL()
+  local mailCount = session.postBox.GetMessageCount()
+  for i = 0 , mailCount - 1 do
+    local mail = session.postBox.GetMessageByIndex(i)
+    local time = mail:GetTime()
+    local diffInSec = -imcTime.GetDiffSecFromNow(imcTime.ImcTimeToSysTime(time))
+    local diffInDay = diffInSec / 60 / 60 / 24
+    if (diffInDay < g.settings.mail_notify_threshold_day) then
+      local itemCount = mail:GetItemCount()
+      if ((itemCount > 0) and (itemCount ~= mail:GetItemTakeCount())) then
+        return true
+      end
+    end
+  end
+  return false
+end
+
+---
+-- 必要に応じて通知を行う.
+function TKGNOTIFIER_NOTIFY_ALL()
+  if(TKGNOTIFIER_HAS_DEADLINE_MAIL()) then
+    notify("期限が近いメールがあります。メールボックスを確認してください。")
+  end
+end
+
+---
 -- アドオン初期化処理.
 -- @param addon アドオン.
 -- @param frame アドオンのフレーム.
@@ -87,4 +118,5 @@ function TKGNOTIFIER_ON_INIT(addon, frame)
     printVersionMessage()
   end
 
+  TKGNOTIFIER_NOTIFY_ALL()
 end
