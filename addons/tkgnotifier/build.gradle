@@ -1,67 +1,9 @@
 /*
  * build.gradle
  */
-apply plugin: IpfPlugin
-
-class IpfPlugin implements Plugin<Project> {
-    @Override
-    void apply(Project project) {
-        project.extensions.create("addon", IpfPluginExtension, project)
-
-        project.task('clean', type:Delete) {
-            delete project.file("${project.buildDir}")
-        }
-
-        project.task('build', dependsOn:'clean') << {
-            project.copy {
-                from "${project.addon.sourceDir}"
-                into "${project.addon.intermediatePath}"
-            }
-            project.exec {
-                workingDir "${project.buildDir}"
-                commandLine 'ipf',  "${project.addon.ipfFileName}", "${project.addon.name}"
-            }
-        }
-
-        project.task('info') << {
-            println "name: ${project.addon.name}"
-            println "version: ${project.addon.version}"
-            println "unicode: ${project.addon.unicode}"
-            println "source: ${project.addon.sourceDir}"
-            println "filename: ${project.addon.ipfFileName}"
-            println "intermediate: ${project.addon.intermediatePath}"
-        }
-    }
-}
-
-class IpfPluginExtension {
-    String name
-    String version
-    String unicode
-    String sourceDir
-    final String rootDir
-    final String buildDir
-
-    IpfPluginExtension(Project project) {
-        // read only
-        buildDir = "${project.buildDir}"
-        rootDir = "${project.rootDir}"
-        // customizable
-        name = "${project.name}"
-        version = "${project.version}"
-        unicode = "🦎"
-        sourceDir = "src"
-    }
-
-    String getSourceDir() {
-        return "${rootDir}/${sourceDir}"
-    }
-
-    String getIntermediatePath() {
-        return "${buildDir}/${name}/addon_d.ipf/${name}"
-    }
-
-    String getIpfFileName() {
-        return "_${name}-${unicode}-v${version}.ipf"
-    }
+apply plugin: com.github.tokageel.ipf.IpfPlugin
+buildscript {
+  dependencies {
+    classpath files('../gradle-ipf-plugin-0.0.1.jar')
+  }
 }
