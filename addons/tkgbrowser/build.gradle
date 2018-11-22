@@ -3,17 +3,10 @@
  */
 apply plugin: IpfPlugin
 
-addon {
-    name = 'tkgbrowser'
-    version = '0.0.3'
-    unicode = '🦎'
-}
-
 class IpfPlugin implements Plugin<Project> {
-
     @Override
     void apply(Project project) {
-        project.extensions.create("addon", IpfPluginExtension)
+        project.extensions.create("addon", IpfPluginExtension, project)
 
         project.task('clean', type:Delete) {
             delete project.file("${project.buildDir}")
@@ -21,8 +14,8 @@ class IpfPlugin implements Plugin<Project> {
 
         project.task('build', dependsOn:'clean') << {
             project.copy {
-                from 'src'
-                into "${project.buildDir}/${project.addon.intermediatePath}"
+                from "${project.addon.sourceDir}"
+                into "${project.addon.intermediatePath}"
             }
             project.exec {
                 workingDir "${project.buildDir}"
@@ -30,31 +23,45 @@ class IpfPlugin implements Plugin<Project> {
             }
         }
 
-        project.task('info', dependsOn:'clean') << {
-            println "--- IN ---"
+        project.task('info') << {
             println "name: ${project.addon.name}"
             println "version: ${project.addon.version}"
             println "unicode: ${project.addon.unicode}"
-            println "--- OUT ---"
-            println "filename: ${project.addon.getIpfFileName()}"
-            println "intermediate: ${project.addon.getIntermediatePath()}"
+            println "source: ${project.addon.sourceDir}"
+            println "filename: ${project.addon.ipfFileName}"
+            println "intermediate: ${project.addon.intermediatePath}"
         }
     }
-
 }
 
 class IpfPluginExtension {
-
     String name
     String version
     String unicode
+    String sourceDir
+    final String rootDir
+    final String buildDir
+
+    IpfPluginExtension(Project project) {
+        // read only
+        buildDir = "${project.buildDir}"
+        rootDir = "${project.rootDir}"
+        // customizable
+        name = "${project.name}"
+        version = "${project.version}"
+        unicode = "🦎"
+        sourceDir = "src"
+    }
+
+    String getSourceDir() {
+        return "${rootDir}/${sourceDir}"
+    }
 
     String getIntermediatePath() {
-        return "${name}/addon_d.ipf/${name}"
+        return "${buildDir}/${name}/addon_d.ipf/${name}"
     }
 
     String getIpfFileName() {
         return "_${name}-${unicode}-v${version}.ipf"
     }
-
 }
