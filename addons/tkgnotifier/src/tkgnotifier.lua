@@ -41,13 +41,6 @@ local function log(message)
 end
 
 ---
--- 指定した文字列を目立ちそうな色でチャットウィンドウへ出力する.
--- @param message 出力する文字列.
-local function notify(message)
-  CHAT_SYSTEM(string.format("[%s] %s", Addon.name, tostring(message)), Appearances.colorNotify)
-end
-
----
 -- バージョン出力.
 local function printVersionMessage()
   log(string.format("%s - v%s", Addon.name, tostring(Addon.version)))
@@ -91,12 +84,89 @@ function TKGNOTIFIER_HAS_DEADLINE_MAIL()
   return false
 end
 
+
+---
+-- 指定したアイコンと文字列を使用して通知ウィンドウを表示する.
+-- @param icon 表示するアイコン.
+-- @param message 出力する文字列.
+function TKGNOTIFIER_NOTIFY(icon, message)
+  local frameName = "tkgnotifier"
+  local frame = ui.GetFrame(frameName)
+  if not frame then
+    return
+  end
+  if (frame:IsVisible() == 1) then
+    ui.CloseFrame(frameName)
+  end
+
+  message = message or ""
+  local richText = GET_CHILD_RECURSIVELY(frame, "message")
+  if richText then
+    richText:SetText(tostring(message or ""))
+  end
+
+  local picture = GET_CHILD_RECURSIVELY(frame, "icon")
+  if picture then
+    picture:SetImage(icon or "")
+  end
+  ui.OpenFrame(frameName)
+end
+
 ---
 -- 必要に応じて通知を行う.
 function TKGNOTIFIER_NOTIFY_ALL()
-  if(TKGNOTIFIER_HAS_DEADLINE_MAIL()) then
-    notify("期限が近いメールがあります。メールボックスを確認してください。")
+  if (TKGNOTIFIER_HAS_DEADLINE_MAIL()) then
+    TKGNOTIFIER_NOTIFY("news_btn", "受取期限間近のメールがあります。")
   end
+end
+
+---
+-- フレームを初期化する.
+-- @param frame 初期化対象のフレーム.
+function TKGNOTIFIER_FRAME_INIT(frame)
+  if not frame then
+    return
+  end
+  local x = 200
+  local y = 200
+
+  -- クエスト欄の上辺りに画面右詰めで表示
+  local questFrame = ui.GetFrame("questinfoset_2")
+  if questFrame and questFrame:IsVisible() then
+    x = questFrame:GetX() + (questFrame:GetWidth() - frame:GetWidth())
+    y = questFrame:GetY() - frame:GetHeight()
+  end
+  frame:SetOffset(x, y)
+
+  frame:Invalidate()
+  frame:ShowWindow(1)
+end
+
+---
+-- フレーム表示時のコールバック.
+-- @param frame 表示対象のフレーム.
+function TKGNOTIFIER_FRAME_OPEN(frame)
+  TKGNOTIFIER_FRAME_INIT(frame)
+end
+
+---
+-- フレームを非表示時のコールバック.
+-- @param frame 非表示対象のフレーム.
+function TKGNOTIFIER_FRAME_CLOSE(frame)
+end
+
+---
+-- ウィジェットクリック時のコールバック.
+-- @param frame 指定されたウィジェットを含むフレーム.
+-- @param ctrl 指定されたウィジェット.
+-- @param argStr LBtnUpArgStrで指定された引数.
+-- @param argNum 引数の数.
+function TKGNOTIFIER_FRAME_ON_CLICKED(frame, ctrl, argStr, argNum)
+  if not frame then
+    return
+  end
+
+  ui.CloseFrame(frame:GetName())
 end
 
 ---
