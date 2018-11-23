@@ -65,23 +65,23 @@ if not g.loaded then
 end
 
 ---
--- 期限が近づいているアイテム付きのメールが存在するかを確認する.
--- @return 期限が近いアイテム付きのメールが存在する場合はtrue. それ以外の場合はfalse.
-function TKGNOTIFIER_HAS_DEADLINE_MAIL()
+-- メールボックスに存在する未受領のアイテムが添付されたメールのうち、
+-- 最も期限が近いメールの受け取り期限までの時間を日単位で返す.
+-- @return 受取期限までの日数. 該当するメールがメールボックスに存在しない場合は負数.
+function TKGNOTIFIER_GET_MAIL_WILL_EXPIRE_IN_DAY()
+  local nearestInSec = -1
   local mailCount = session.postBox.GetMessageCount()
   for i = 0 , mailCount - 1 do
     local mail = session.postBox.GetMessageByIndex(i)
-    local time = mail:GetTime()
-    local diffInSec = -imcTime.GetDiffSecFromNow(imcTime.ImcTimeToSysTime(time))
-    local diffInDay = diffInSec / 60 / 60 / 24
-    if (diffInDay < g.settings.mail_notify_threshold_day) then
-      local itemCount = mail:GetItemCount()
-      if ((itemCount > 0) and (itemCount ~= mail:GetItemTakeCount())) then
-        return true
-      end
+    local itemCount = mail:GetItemCount()
+    if ((itemCount > 0) and (itemCount ~= mail:GetItemTakeCount())) then
+      local time = imcTime.ImcTimeToSysTime(mail:GetTime())
+      local diffInSec = -imcTime.GetDiffSecFromNow(time)
+      nearestInSec = (nearestInSec < 0) and diffInSec or math.min(nearestInSec, diffInSec)
     end
   end
-  return false
+
+  return nearestInSec / 60 / 60 / 24
 end
 
 
@@ -115,8 +115,10 @@ end
 ---
 -- 必要に応じて通知を行う.
 function TKGNOTIFIER_NOTIFY_ALL()
-  if (TKGNOTIFIER_HAS_DEADLINE_MAIL()) then
-    TKGNOTIFIER_NOTIFY("news_btn", "受取期限間近のメールがあります。")
+  local willExpireInDay = TKGNOTIFIER_GET_MAIL_WILL_EXPIRE_IN_DAY()
+  if ((willExpireInDay > 0) and (willExpireInDay < g.settings.mail_notify_threshold_day)) then
+    local message = string.format("受取期限まで%.1f日のメールがあります。", willExpireInDay)
+    TKGNOTIFIER_NOTIFY("news_btn", message)
   end
 end
 
