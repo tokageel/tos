@@ -41,13 +41,6 @@ local function log(message)
 end
 
 ---
--- 指定した文字列を目立ちそうな色でチャットウィンドウへ出力する.
--- @param message 出力する文字列.
-local function notify(message)
-  CHAT_SYSTEM(string.format("[%s] %s", Addon.name, tostring(message)), Appearances.colorNotify)
-end
-
----
 -- バージョン出力.
 local function printVersionMessage()
   log(string.format("%s - v%s", Addon.name, tostring(Addon.version)))
@@ -72,31 +65,110 @@ if not g.loaded then
 end
 
 ---
--- 期限が近づいているアイテム付きのメールが存在するかを確認する.
--- @return 期限が近いアイテム付きのメールが存在する場合はtrue. それ以外の場合はfalse.
-function TKGNOTIFIER_HAS_DEADLINE_MAIL()
+-- メールボックスに存在する未受領のアイテムが添付されたメールのうち、
+-- 最も期限が近いメールの受け取り期限までの時間を日単位で返す.
+-- @return 受取期限までの日数. 該当するメールがメールボックスに存在しない場合は負数.
+function TKGNOTIFIER_GET_MAIL_WILL_EXPIRE_IN_DAY()
+  local nearestInSec = -1
   local mailCount = session.postBox.GetMessageCount()
   for i = 0 , mailCount - 1 do
     local mail = session.postBox.GetMessageByIndex(i)
-    local time = mail:GetTime()
-    local diffInSec = -imcTime.GetDiffSecFromNow(imcTime.ImcTimeToSysTime(time))
-    local diffInDay = diffInSec / 60 / 60 / 24
-    if (diffInDay < g.settings.mail_notify_threshold_day) then
-      local itemCount = mail:GetItemCount()
-      if ((itemCount > 0) and (itemCount ~= mail:GetItemTakeCount())) then
-        return true
-      end
+    local itemCount = mail:GetItemCount()
+    if ((itemCount > 0) and (itemCount ~= mail:GetItemTakeCount())) then
+      local time = imcTime.ImcTimeToSysTime(mail:GetTime())
+      local diffInSec = -imcTime.GetDiffSecFromNow(time)
+      nearestInSec = (nearestInSec < 0) and diffInSec or math.min(nearestInSec, diffInSec)
     end
   end
-  return false
+
+  return nearestInSec / 60 / 60 / 24
+end
+
+
+---
+-- 指定したアイコンと文字列を使用して通知ウィンドウを表示する.
+-- @param icon 表示するアイコン.
+-- @param message 出力する文字列.
+function TKGNOTIFIER_NOTIFY(icon, message)
+  local frameName = "tkgnotifier"
+  local frame = ui.GetFrame(frameName)
+  if not frame then
+    return
+  end
+  if (frame:IsVisible() == 1) then
+    ui.CloseFrame(frameName)
+  end
+
+  message = message or ""
+  local richText = GET_CHILD_RECURSIVELY(frame, "message")
+  if richText then
+    richText:SetText(tostring(message or ""))
+  end
+
+  local picture = GET_CHILD_RECURSIVELY(frame, "icon")
+  if picture then
+    picture:SetImage(icon or "")
+  end
+  ui.OpenFrame(frameName)
 end
 
 ---
 -- 必要に応じて通知を行う.
 function TKGNOTIFIER_NOTIFY_ALL()
-  if(TKGNOTIFIER_HAS_DEADLINE_MAIL()) then
-    notify("期限が近いメールがあります。メールボックスを確認してください。")
+  local willExpireInDay = TKGNOTIFIER_GET_MAIL_WILL_EXPIRE_IN_DAY()
+  if ((willExpireInDay > 0) and (willExpireInDay < g.settings.mail_notify_threshold_day)) then
+    local message = string.format("受取期限まで%.1f日のメールがあります。", willExpireInDay)
+    TKGNOTIFIER_NOTIFY("news_btn", message)
   end
+end
+
+---
+-- フレームを初期化する.
+-- @param frame 初期化対象のフレーム.
+function TKGNOTIFIER_FRAME_INIT(frame)
+  if not frame then
+    return
+  end
+  local x = 200
+  local y = 200
+
+  -- クエスト欄の上辺りに画面右詰めで表示
+  local questFrame = ui.GetFrame("questinfoset_2")
+  if questFrame and questFrame:IsVisible() then
+    x = questFrame:GetX() + (questFrame:GetWidth() - frame:GetWidth())
+    y = questFrame:GetY() - frame:GetHeight()
+  end
+  frame:SetOffset(x, y)
+
+  frame:Invalidate()
+  frame:ShowWindow(1)
+end
+
+---
+-- フレーム表示時のコールバック.
+-- @param frame 表示対象のフレーム.
+function TKGNOTIFIER_FRAME_OPEN(frame)
+  TKGNOTIFIER_FRAME_INIT(frame)
+end
+
+---
+-- フレームを非表示時のコールバック.
+-- @param frame 非表示対象のフレーム.
+function TKGNOTIFIER_FRAME_CLOSE(frame)
+end
+
+---
+-- ウィジェットクリック時のコールバック.
+-- @param frame 指定されたウィジェットを含むフレーム.
+-- @param ctrl 指定されたウィジェット.
+-- @param argStr LBtnUpArgStrで指定された引数.
+-- @param argNum 引数の数.
+function TKGNOTIFIER_FRAME_ON_CLICKED(frame, ctrl, argStr, argNum)
+  if not frame then
+    return
+  end
+
+  ui.CloseFrame(frame:GetName())
 end
 
 ---

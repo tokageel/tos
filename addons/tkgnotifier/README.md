@@ -32,5 +32,5 @@ settings.jsonファイルを手動で作成することで設定を変更でき�
 
 期限が3日以内に迫った未開封メールがある場合に通知する場合は以下のような設定になります。
 ```json
-{"mail_notify_threshold_day":"3"}
+{"mail_notify_threshold_day":3}
 ```
