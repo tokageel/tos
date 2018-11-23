@@ -20,7 +20,7 @@ local DEFAULT_NOTIFY_THRESHOLD_DAY = 7
 local Addon = {
   name = "TKGNOTIFIER",
   author = "TOKAGEEL",
-  version = "0.0.1"
+  version = "0.0.2"
 }
 
 ---
