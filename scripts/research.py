@@ -8,6 +8,7 @@ research.py
 
 import xml.etree.ElementTree as ET
 import os
+import sys
 
 
 class XmlFormatResearch(object):
@@ -38,14 +39,14 @@ class XmlFormatResearch(object):
             return err
 
         for element in tree.getroot().iter(self.target_tag):
-            self.__element_count = self.__element_count + 1
+            self.__element_count += 1
             # 属性
             for key in element.attrib.keys():
                 v = element.attrib[key]
                 if v is not None:
                     self.__attributes.setdefault(key, {})
                     self.__attributes[key].setdefault('count', 0)
-                    self.__attributes[key]['count'] = self.__attributes[key]['count'] + 1
+                    self.__attributes[key]['count'] += 1
                     self.__attributes[key].setdefault('max_length', 0)
                     self.__attributes[key]['max_length'] = max(self.__attributes[key]['max_length'], len(v))
                     self.__attributes[key].setdefault('values', set())
@@ -56,7 +57,7 @@ class XmlFormatResearch(object):
                 key = e.tag
                 self.children.setdefault(key, {})
                 self.children[key].setdefault('count', 0)
-                self.children[key]['count'] = self.children[key]['count'] + 1
+                self.children[key]['count'] += 1
 
     def print_result(self):
         """
@@ -93,20 +94,33 @@ def find_all_files(directory):
     :param directory: ディレクトリ.
     :return: ディレクトリ配下のファイル.
     """
-    for root, dirs, files in os.walk(directory):
+    for root, dirs, files in os.walk(directory, followlinks=True):
         for f in files:
-            yield os.path.join(root, f)
+            file_name, ext = os.path.splitext(f)
+            if ext in ('.skn', '.xml'):
+                yield os.path.join(root, f)
+
+
+def print_usage():
+    print('Usage: research.py [path to xml]')
 
 
 if __name__ == '__main__':
+    args = sys.argv
+    root_dir = ''
+    if len(args) == 2:
+        root_dir = args[1]
+    else:
+        print_usage()
+        sys.exit(1)
+            
     root_tag = 'skinset'
     researches = list()
     researches.append(XmlFormatResearch(root_tag))
     results = list()
-
     while len(researches) > 0:
         # ファイルを走査
-        for xmlFile in find_all_files('../data'):
+        for xmlFile in find_all_files(root_dir):
             for r in researches:
                 r.parse_xml_file(xmlFile)
 
@@ -139,3 +153,5 @@ if __name__ == '__main__':
     # 結果を出力
     for r in results:
         r.print_result()
+
+    sys.exit(0)
