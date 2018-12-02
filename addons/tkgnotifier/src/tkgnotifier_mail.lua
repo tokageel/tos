@@ -33,6 +33,8 @@ local debugIsEnabled = false
 local lastPcName
 -- 最後に確認したマップ名.
 local lastMapName
+-- この機能で使用する通知種別.
+local notificationKind = "TKGNOTIFIER_MAIL"
 
 ---
 -- 指定した文字列をシステムログとしてチャットウィンドウへ出力する.
@@ -119,7 +121,7 @@ function TKGNOTIFIER_MAIL_NOTIFY_IF_NEEDED()
   log(string.format("expire=%.1f (settings=%.1f)", willExpireInDay, mailSettings.threshold_day))
   if ((willExpireInDay > 0) and (willExpireInDay < mailSettings.threshold_day)) then
     local message = string.format("受取期限まで%.1f日のメールがあります。", willExpireInDay)
-    TKGNOTIFIER_NOTIFY("news_btn", message)
+    TKGNOTIFIER_NOTIFY("news_btn", message, notificationKind)
   end
 end
 

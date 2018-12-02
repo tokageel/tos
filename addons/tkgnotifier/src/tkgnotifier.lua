@@ -44,9 +44,9 @@ end
 ---
 -- 指定したアイコンと文字列を使用して通知ウィンドウを表示する.
 -- @param icon 表示するアイコン.
--- @param message 出力する文字列.
+-- @param message 表示する文字列.
 function TKGNOTIFIER_NOTIFY(icon, message)
-  log("TKGNOTIFIER_NOTIFY")
+  log("TKGNOTIFIER_NOTIFY(icon, message)")
   -- アイコンの指定が誤っている場合はデフォルトアイコン
   if (icon == nil) or (type(icon) ~= "string") then
     icon = "news_btn"
@@ -57,6 +57,30 @@ function TKGNOTIFIER_NOTIFY(icon, message)
   end
 
   table.insert(stack, { icon=icon, message=message })
+  TKGNOTIFIER_FRAME_ON_STACK_CHANGED(stack)
+end
+
+---
+-- 指定したアイコンと文字列を使用して通知ウィンドウを表示する.
+-- @param icon 表示するアイコン.
+-- @param message 表示する文字列.
+-- @param kind 通知種別. 同一の通知種別の通知がスタック上に存在する場合、後発の通知で上書きする.
+function TKGNOTIFIER_NOTIFY(icon, message, kind)
+  log("TKGNOTIFIER_NOTIFY(icon, message, kind)")
+  -- 種別の指定がない場合は単純に通知
+  if (kind == nil) then
+    TKGNOTIFIER_NOTIFY(icon, message)
+    return
+  end
+
+  -- 同一種別の通知をスタックから取り除く
+  for index, notification in pairs(stack) do
+    if (kind == notification.kind) then
+      table.remove(stack, index)
+      break
+    end
+  end
+  table.insert(stack, { icon=icon, message=message, kind=kind })
   TKGNOTIFIER_FRAME_ON_STACK_CHANGED(stack)
 end
 
