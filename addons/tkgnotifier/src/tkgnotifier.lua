@@ -23,6 +23,8 @@ _G["ADDONS"][Addon.author][Addon.name] = _G["ADDONS"][Addon.author][Addon.name] 
 local g = _G["ADDONS"][Addon.author][Addon.name]
 -- デバッグ機能の有無.
 local debugIsEnabled = false
+-- 通知スタック.
+local stack = {}
 
 ---
 -- 指定した文字列をシステムログとしてチャットウィンドウへ出力する.
@@ -54,7 +56,16 @@ function TKGNOTIFIER_NOTIFY(icon, message)
     message = tostring(message)
   end
 
-  TKGNOTIFIER_FRAME_SHOW_NOTIFY(icon, message)
+  table.insert(stack, { icon=icon, message=message })
+  TKGNOTIFIER_FRAME_ON_STACK_CHANGED(stack)
+end
+
+---
+-- 直近の通知を削除する.
+function TKGNOIFIER_POP()
+  log("TKGNOTIFIER_POP")
+  table.remove(stack)
+  TKGNOTIFIER_FRAME_ON_STACK_CHANGED(stack)
 end
 
 ---
@@ -67,10 +78,10 @@ function TKGNOTIFIER_ON_INIT(addon, frame)
   g.addon = addon
   g.frame = frame
 
-  -- デフォルト設定
-  g.settings = {}
   -- 設定読み込み
   if not g.loaded then
+    -- デフォルト設定
+    g.settings = {}
     log("loadJSON")
     settingsFilePath = string.format("../addons/%s/settings.json", string.lower(Addon.name))
     local settings, err = acutil.loadJSON(settingsFilePath, g.settings)

@@ -55,36 +55,42 @@ end
 -- @param argNum 引数の数.
 function TKGNOTIFIER_FRAME_ON_CLICKED(frame, ctrl, argStr, argNum)
   log("TKGNOTIFIER_FRAME_ON_CLICKED")
-  if not frame then
-    return
-  end
-
-  ui.CloseFrame(frame:GetName())
+  TKGNOIFIER_POP()
 end
 
 ---
 -- アイコンとメッセージを指定して通知を表示する.
 -- @param icon アイコン.
 -- @param message メッセージ.
-function TKGNOTIFIER_FRAME_SHOW_NOTIFY(icon, message)
-  log("TKGNOTIFIER_FRAME_SHOW_NOTIFY")
+function TKGNOTIFIER_FRAME_ON_STACK_CHANGED(stack)
+  log("TKGNOTIFIER_FRAME_ON_STACK_CHANGED")
   local frameName = "tkgnotifier"
   local frame = ui.GetFrame(frameName)
-  if not frame then
+  if (frame == nil) then
+    log("frame is nil")
     return
   end
+
+  -- すでに通知を表示済みの場合は一度閉じる
   if (frame:IsVisible() == 1) then
-    ui.CloseFrame(frameName)
+    ui.CloseFrame("tkgnotifier")
+  end
+  -- スタックが空の場合はそのまま処理終了
+  log("stack.length=" .. tostring(#stack))
+  if (#stack == 0) then
+    log("stack is empty")
+    return
   end
 
+  -- スタックから要素を一つ取り出して表示
+  local notification = stack[#stack]
   local richText = GET_CHILD_RECURSIVELY(frame, "message")
   if richText then
-    richText:SetText(message)
+    richText:SetText(notification.message)
   end
-
   local picture = GET_CHILD_RECURSIVELY(frame, "icon")
   if picture then
-    picture:SetImage(icon)
+    picture:SetImage(notification.icon)
   end
   ui.OpenFrame(frameName)
 end
