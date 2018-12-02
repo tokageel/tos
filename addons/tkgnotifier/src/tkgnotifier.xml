@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <uiframe name="tkgnotifier" x="0" y="0" width="365" height="80" create="open">
-    <frame title="tkgnotifier" layout_gravity="right top"/>
     <option closebutton="false" visible="false"/>
     <draw drawtitlebar="false" drawframe="true"/>
     <layer layerlevel="20"/>
@@ -13,8 +12,5 @@
         <richtext name="message" rect="0 0 270 60" margin="80 0 0 0" layout_gravity="left center"
             fixwidth="true" resizebytext="false" textalign="left center"
             fontname="brown_18" caption="" LBtnUpScp="TKGNOTIFIER_FRAME_ON_CLICKED"/>
-        <timer name="addontimer" rect="0 0 0 0"/>
     </controls>
-    <controls/>
-
 </uiframe>
