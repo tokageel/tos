@@ -35,6 +35,28 @@ local lastPcName
 local lastMapName
 -- この機能で使用する通知種別.
 local notificationKind = "TKGNOTIFIER_MAIL"
+-- リソース一覧.
+local resources = {
+  EN = {
+    icon = {
+      news = "news_btn"
+    },
+    string = {
+      deadline_is_nearling = "Until a time limit of a message: %.1f days."
+    }
+  },
+  JP = {
+    icon = {
+      news = "news_btn"
+    },
+    string = {
+      deadline_is_nearling = "受取期限まで%.1f日のメールがあります。"
+    }
+  }
+}
+
+-- リソース.
+local R = resources.EN
 
 ---
 -- 指定した文字列をシステムログとしてチャットウィンドウへ出力する.
@@ -120,8 +142,8 @@ function TKGNOTIFIER_MAIL_NOTIFY_IF_NEEDED()
   local willExpireInDay = TKGNOTIFIER_MAIL_GET_NEAREST_EXPIRE_IN_DAY()
   log(string.format("expire=%.1f (settings=%.1f)", willExpireInDay, mailSettings.threshold_day))
   if ((willExpireInDay > 0) and (willExpireInDay < mailSettings.threshold_day)) then
-    local message = string.format("受取期限まで%.1f日のメールがあります。", willExpireInDay)
-    TKGNOTIFIER_NOTIFY("news_btn", message, notificationKind)
+    local message = string.format(R.string.deadline_is_nearling, willExpireInDay)
+    TKGNOTIFIER_NOTIFY(R.icon.news, message, notificationKind)
   end
 end
 
@@ -133,12 +155,25 @@ function TKGNOTIFIER_MAIL_INIT(settings)
   log("loaded settings=" .. dump(settings))
 
   -- デフォルト設定
-  if settings and settings.mail then
-    if settings.mail.trigger then
-      mailSettings.trigger = settings.mail.trigger
+  if settings then
+    if settings.locale then
+      local getResource = function(locale)
+        for k, v in pairs(resources) do
+          if locale == k then
+            return v
+          end
+        end
+        return resources["EN"]
+      end
+      R = getResource(settings.locale)
     end
-    if settings.mail.threshold_day then
-      mailSettings.threshold_day = settings.mail.threshold_day
+    if settings.mail then
+      if settings.mail.trigger then
+        mailSettings.trigger = settings.mail.trigger
+      end
+      if settings.mail.threshold_day then
+        mailSettings.threshold_day = settings.mail.threshold_day
+      end
     end
   end
   debugIsEnabled = settings and settings.debug and settings.debug.enable
