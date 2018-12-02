@@ -1,9 +1,6 @@
 ---
 -- 何かを通知してくれるアドオン.
 
---- @field acutil.
-local acutil = require("acutil")
-
 ---
 -- アドオン概要.
 -- @field name アドオン名.
@@ -107,7 +104,9 @@ function TKGNOTIFIER_ON_INIT(addon, frame)
     -- デフォルト設定
     g.settings = {}
     log("loadJSON")
-    settingsFilePath = string.format("../addons/%s/settings.json", string.lower(Addon.name))
+    local settingsFilePath = string.format("../addons/%s/settings.json", string.lower(Addon.name))
+
+    local acutil = require("acutil")
     local settings, err = acutil.loadJSON(settingsFilePath, g.settings)
     if not err then
       g.settings = settings
