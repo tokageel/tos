@@ -6,11 +6,13 @@
 -- @field name アドオン名.
 -- @field author 作者名.
 -- @field version バージョン.
+-- @field apiVersion APIバージョン.
 -- @table Addon
 local Addon = {
   name = "TKGNOTIFIER",
   author = "TOKAGEEL",
-  version = "0.0.2"
+  version = "0.0.2",
+  apiVersion = 0
 }
 
 -- グローバルスコープへの格納.
@@ -39,45 +41,56 @@ function TKGNOTIFIER_PRINT_VERSION()
 end
 
 ---
--- 指定したアイコンと文字列を使用して通知ウィンドウを表示する.
--- @param icon 表示するアイコン.
--- @param message 表示する文字列.
-function TKGNOTIFIER_NOTIFY(icon, message)
-  log("TKGNOTIFIER_NOTIFY(icon, message)")
-  -- アイコンの指定が誤っている場合はデフォルトアイコン
-  if (icon == nil) or (type(icon) ~= "string") then
-    icon = "news_btn"
-  end
-  message = message or ""
-  if (type(message) ~= "string") then
-    message = tostring(message)
-  end
-
-  table.insert(stack, { icon=icon, message=message })
-  TKGNOTIFIER_FRAME_ON_STACK_CHANGED(stack)
+-- APIのバージョンを返す.
+-- @return APIバージョン（number）.
+function TKGNOTIFIER_GET_API_VERSION()
+  log("TKGNOTIFIER_GET_API_VERSION")
+  return Addon.apiVersion
 end
 
 ---
 -- 指定したアイコンと文字列を使用して通知ウィンドウを表示する.
--- @param icon 表示するアイコン.
--- @param message 表示する文字列.
--- @param kind 通知種別. 同一の通知種別の通知がスタック上に存在する場合、後発の通知で上書きする.
-function TKGNOTIFIER_NOTIFY(icon, message, kind)
+-- @param icon 表示するアイコンの名称（string）.
+-- @param message 表示する文字列（string）.
+-- @param kind 通知種別. 同一の通知種別の通知がスタック上に存在する場合、後発の通知で上書きする（string）.
+-- @param action 通知を閉じた際のコールバック関数（string）.
+function TKGNOTIFIER_NOTIFY(icon, message, kind, action)
   log("TKGNOTIFIER_NOTIFY(icon, message, kind)")
-  -- 種別の指定がない場合は単純に通知
-  if (kind == nil) then
-    TKGNOTIFIER_NOTIFY(icon, message)
-    return
+  local theNotification = {}
+
+  -- アイコン
+  if (icon == nil) or (type(icon) ~= "string") then
+    -- 指定が不正な場合は適当なアイコンを設定
+    theNotification.icon = "news_btn"
+  else
+    theNotification.icon = icon
   end
 
-  -- 同一種別の通知をスタックから取り除く
-  for index, notification in pairs(stack) do
-    if (kind == notification.kind) then
-      table.remove(stack, index)
-      break
+  -- メッセージ
+  message = message or ""
+  if (type(message) ~= "string") then
+    message = tostring(message)
+  end
+  theNotification.message = message
+
+  -- 種別
+  if (kind ~= nil) and (type(kind) == "string") then
+    theNotification.kind = kind
+    -- 同一種別の通知をスタックから取り除く
+    for index, notification in pairs(stack) do
+      if (kind == notification.kind) then
+        table.remove(stack, index)
+        break
+      end
     end
   end
-  table.insert(stack, { icon=icon, message=message, kind=kind })
+
+  -- アクション
+  if (action ~= nil) and (type(action) == "string") then
+    theNotification.action = action
+  end
+
+  table.insert(stack, theNotification)
   TKGNOTIFIER_FRAME_ON_STACK_CHANGED(stack)
 end
 
@@ -85,8 +98,19 @@ end
 -- 直近の通知を削除する.
 function TKGNOIFIER_POP()
   log("TKGNOTIFIER_POP")
-  table.remove(stack)
-  TKGNOTIFIER_FRAME_ON_STACK_CHANGED(stack)
+  local action
+  if #stack > 0 then
+    local notification = stack[#stack]
+    if (notification.action ~= nil) then
+      action = notification.action
+    end
+    table.remove(stack)
+    TKGNOTIFIER_FRAME_ON_STACK_CHANGED(stack)
+  end
+  if (action ~= nil) then
+    log("callback " .. action)
+    pcall(loadstring(action))
+  end
 end
 
 ---
@@ -110,6 +134,7 @@ function TKGNOTIFIER_ON_INIT(addon, frame)
     local settings, err = acutil.loadJSON(settingsFilePath, g.settings)
     if not err then
       g.settings = settings
+      debugIsEnabled = settings and settings.debug and settings.debug.enable
     else
       log(tostring(err))
     end
@@ -119,6 +144,10 @@ function TKGNOTIFIER_ON_INIT(addon, frame)
   -- 関連機能へ設定値を通知
   TKGNOTIFIER_FRAME_INIT(g.settings)
   TKGNOTIFIER_MAIL_INIT(g.settings)
+
+  if (#stack > 0) then
+    TKGNOTIFIER_FRAME_ON_STACK_CHANGED(stack)
+  end
 
   g.loaded = true
 end

@@ -18,6 +18,7 @@ end
 -- @param settings 設定値.
 function TKGNOTIFIER_FRAME_INIT(settings)
   log("TKGNOTIFIER_FRAME_INIT")
+  debugIsEnabled = settings and settings.debug and settings.debug.enable
 end
 
 ---

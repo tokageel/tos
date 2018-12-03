@@ -175,8 +175,9 @@ function TKGNOTIFIER_MAIL_INIT(settings)
         mailSettings.threshold_day = settings.mail.threshold_day
       end
     end
+    debugIsEnabled = settings.debug and settings.debug.enable
   end
-  debugIsEnabled = settings and settings.debug and settings.debug.enable
+
   log("actual settings=" .. dump(mailSettings))
 
   TKGNOTIFIER_MAIL_NOTIFY_IF_NEEDED()
