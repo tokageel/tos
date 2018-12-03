@@ -143,7 +143,11 @@ function TKGNOTIFIER_MAIL_NOTIFY_IF_NEEDED()
   log(string.format("expire=%.1f (settings=%.1f)", willExpireInDay, mailSettings.threshold_day))
   if ((willExpireInDay > 0) and (willExpireInDay < mailSettings.threshold_day)) then
     local message = string.format(R.string.deadline_is_nearling, willExpireInDay)
-    TKGNOTIFIER_NOTIFY(R.icon.news, message, notificationKind)
+    TKGNOTIFIER_NOTIFY({
+      icon = R.icon.news,
+      message = message,
+      kind = notificationKind
+    })
   end
 end
 

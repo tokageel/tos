@@ -2,7 +2,23 @@
 -- 何かを通知してくれるアドオン.
 
 ---
+-- 通知ウィンドウに表示する情報.
+-- @field icon 表示するアイコンの名称（string）.
+-- 未指定またはnilを指定した場合はデフォルトのアイコンが使用されます.
+-- @field message 表示する文字列（string）.
+-- 未指定またはnilを指定した場合は空文字列が使用されます.
+-- @field kind 通知種別（string）.
+-- 同一の通知種別の通知がスタック上に存在する場合、後発の通知で上書きします.
+-- 未指定またはnilを指定した場合は、それぞれを個別の通知として扱います.
+-- @field action 通知を閉じた際のコールバック関数名（string）.
+-- 未指定またはnilを指定した場合はコールバックしません.
+-- 同一通知種別による通知で通知が上書きされた場合、先発の通知に対するコールバックは呼び出しません.
+-- コールバック関数内から通知スタックを操作する関数は呼び出さないでください.
+-- @table Notification
+
+---
 -- アドオン概要.
+-- @local
 -- @field name アドオン名.
 -- @field author 作者名.
 -- @field version バージョン.
@@ -12,7 +28,7 @@ local Addon = {
   name = "TKGNOTIFIER",
   author = "TOKAGEEL",
   version = "0.0.2",
-  apiVersion = 0
+  apiVersion = 1
 }
 
 -- グローバルスコープへの格納.
@@ -27,6 +43,7 @@ local stack = {}
 
 ---
 -- 指定した文字列をシステムログとしてチャットウィンドウへ出力する.
+-- @local
 -- @param message 出力する文字列.
 local function log(message)
   if debugIsEnabled then
@@ -36,6 +53,7 @@ end
 
 ---
 -- このアドオンのバージョン情報をシステムメッセージとして出力する.
+-- @local
 function TKGNOTIFIER_PRINT_VERSION()
   CHAT_SYSTEM(string.format("%s - v%s", Addon.name, tostring(Addon.version)), "616161")
 end
@@ -49,45 +67,26 @@ function TKGNOTIFIER_GET_API_VERSION()
 end
 
 ---
--- 指定したアイコンと文字列を使用して通知ウィンドウを表示する.
--- @param icon 表示するアイコンの名称（string）.
--- @param message 表示する文字列（string）.
--- @param kind 通知種別. 同一の通知種別の通知がスタック上に存在する場合、後発の通知で上書きする（string）.
--- @param action 通知を閉じた際のコールバック関数（string）.
-function TKGNOTIFIER_NOTIFY(icon, message, kind, action)
-  log("TKGNOTIFIER_NOTIFY(icon, message, kind)")
-  local theNotification = {}
-
-  -- アイコン
-  if (icon == nil) or (type(icon) ~= "string") then
-    -- 指定が不正な場合は適当なアイコンを設定
-    theNotification.icon = "news_btn"
-  else
-    theNotification.icon = icon
+-- 指定した内容の通知ウィンドウを表示する.
+-- @param notification 表示する通知の内容（Notification）.
+-- @see Notification
+function TKGNOTIFIER_NOTIFY(notification)
+  log("TKGNOTIFIER_NOTIFY")
+  if (type(notification) ~= "table") then
+    log("notification is not table")
+    return
   end
 
-  -- メッセージ
-  message = message or ""
-  if (type(message) ~= "string") then
-    message = tostring(message)
-  end
-  theNotification.message = message
+  local theNotification = TKGNOTIFIER_CREATE_VALID_NOTIFICATION(notification)
 
-  -- 種別
-  if (kind ~= nil) and (type(kind) == "string") then
-    theNotification.kind = kind
-    -- 同一種別の通知をスタックから取り除く
-    for index, notification in pairs(stack) do
-      if (kind == notification.kind) then
+  -- 同一種別の通知をスタックから取り除く
+  if (theNotification.kind ~= nil) then
+    for index, noti in pairs(stack) do
+      if (theNotification.kind == noti.kind) then
         table.remove(stack, index)
         break
       end
     end
-  end
-
-  -- アクション
-  if (action ~= nil) and (type(action) == "string") then
-    theNotification.action = action
   end
 
   table.insert(stack, theNotification)
@@ -95,7 +94,35 @@ function TKGNOTIFIER_NOTIFY(icon, message, kind, action)
 end
 
 ---
+-- 指定したNotificationから使用可能な形に補正したNotificationを生成して返す.
+-- @param notification 元となる通知（Notification）.
+-- @return 通知可能な状態に修正したNotification.
+-- @see Notification
+function TKGNOTIFIER_CREATE_VALID_NOTIFICATION(notification)
+  local theNotification = {}
+  -- アイコン
+  if (type(notification.icon) == "string") then
+    theNotification.icon = notification.icon
+  else
+    -- 指定が不正な場合は適当なアイコンを設定
+    theNotification.icon = "news_btn"
+  end
+  -- メッセージ
+  theNotification.message = tostring(notification.message)
+  -- 種別
+  if (type(notification.kind) == "string") then
+    theNotification.kind = notification.kind
+  end
+  -- アクション
+  if (type(notification.action) == "string") then
+    theNotification.action = notification.action
+  end
+  return theNotification
+end
+
+---
 -- 直近の通知を削除する.
+-- 削除した通知がコールバック関数を指定されている場合、コールバック関数を呼び出す.
 function TKGNOIFIER_POP()
   log("TKGNOTIFIER_POP")
   local action
@@ -116,6 +143,7 @@ end
 ---
 -- アドオン初期化処理.
 -- フレームワークからの呼び出しを期待しているため、直接呼び出さないこと.
+-- @local
 -- @param addon アドオン.
 -- @param frame アドオンのフレーム.
 function TKGNOTIFIER_ON_INIT(addon, frame)
