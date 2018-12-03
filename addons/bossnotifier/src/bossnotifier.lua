@@ -62,7 +62,12 @@ function BOSSNOTIFIER_NOTIFY(bossName)
   local timeStamp = BOSSNOTIFIER_GET_TIME_STAMP()
   local message = string.format("WBアナウンス: %s / %s", bossName, timeStamp)
   log(message)
-  TKGNOTIFIER_NOTIFY(iconName, message, "BOSSNOTIFIER", "BOSSNOTIFIER_ON_REMOVED_NOTIFICATION")
+  TKGNOTIFIER_NOTIFY({
+    icon = iconName,
+    message = message,
+    kind = "BOSSNOTIFIER",
+    action = "BOSSNOTIFIER_ON_REMOVED_NOTIFICATION"
+  })
 end
 
 ---
@@ -87,17 +92,23 @@ end
 function BOSSNOTIFIER_LATE_INIT()
   -- APIバージョン確認
   pcall(function()
-    local expectVersion = 0
+    local expectVersion = 1
     local actualVersion = TKGNOTIFIER_GET_API_VERSION()
     if (actualVersion < expectVersion) then
       local message = "BOSSNOTIFIERに対してTKGNOTIFIERのバージョンが古いようです。"
-      TKGNOTIFIER_NOTIFY(iconName, message)
+      TKGNOTIFIER_NOTIFY({
+        icon = iconName,
+        message = message
+      })
     elseif (actualVersion > expectVersion) then
       local message = "TKGNOTIFIERに対してBOSSNOTIFIERのバージョンが古いようです。"
-      TKGNOTIFIER_NOTIFY(iconName, message)
+      TKGNOTIFIER_NOTIFY({
+        icon = iconName,
+        message = message
+      })
     else
       -- ワールドアナウンスのフックを登録
-      acutil.setupEvent(addon, "NOTICE_ON_MSG", "BOSSNOTIFIER_NOTICE_ON_MSG")
+      acutil.setupEvent(g.addon, "NOTICE_ON_MSG", "BOSSNOTIFIER_NOTICE_ON_MSG")
     end
   end)
 end
