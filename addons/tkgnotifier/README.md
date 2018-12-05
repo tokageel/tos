@@ -56,7 +56,7 @@ settings.jsonファイルを手動で作成することで設定を変更でき�
 ||threshold_day|number|期限付きメールの期限が近いと判断する閾値（単位:日）|7|
 |item||table|期限付きアイテム通知機能の設定|-|
 ||trigger|number|期限付きアイテム通知を行うトリガー|2（CC時）|
-||threshold_day|number|未使用アイテムの期限が近いと判断する閾値（単位:日）|1|
+||threshold_day|number|期限付きアイテムの期限が近いと判断する閾値（単位:日）|1|
 |medal||table|無料TP蓄積通知機能の設定|-|
 ||trigger|number|無料TP蓄積通知を行うトリガー|1（ログイン時）|
 ||threshold|number|無料TPが蓄積したと判断する閾値（単位:ポイント）|5|
