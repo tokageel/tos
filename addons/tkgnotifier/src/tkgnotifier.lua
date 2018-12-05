@@ -30,6 +30,21 @@ local Addon = {
   version = "0.0.2",
   apiVersion = 1
 }
+---
+-- 通知トリガーの列挙.
+-- @field none 通知なし.
+-- @field onLogined ログイン時にのみ通知する.
+-- @field onCharacterChanged ログイン時、キャラクター切替時に通知する.
+-- @field onMapTransited ログイン時、キャラクター切替時、マップ移動時に通知する.
+-- @field onChannelChanged ログイン時、キャラクター切替時、マップ移動時、チャンネル切り替え時に通知する.
+-- @table TKGNOTIFIER_ITEM_ENUM_TRIGGER
+TKGNOTIFIER_ENUM_TRIGGER = {
+  none = 0,
+  onLogined = 1,
+  onCharacterChanged = 2,
+  onMapTransited = 3,
+  onChannelChanged = 4,
+}
 
 -- グローバルスコープへの格納.
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -38,6 +53,10 @@ _G["ADDONS"][Addon.author][Addon.name] = _G["ADDONS"][Addon.author][Addon.name] 
 local g = _G["ADDONS"][Addon.author][Addon.name]
 -- デバッグ機能の有無.
 local debugIsEnabled = false
+-- 最後に確認したキャラクター名.
+local lastPcName
+-- 最後に確認したマップ名.
+local lastMapName
 -- 通知スタック.
 local stack = {}
 
@@ -141,6 +160,31 @@ function TKGNOIFIER_POP()
 end
 
 ---
+-- 呼び出しタイミングから通知トリガーを同定する.
+-- @return 通知トリガー.
+-- @see TKGNOTIFIER_ENUM_TRIGGER
+function TKGNOTIFIER_DICIDE_TRIGGER()
+  log("TKGNOTIFIER_DICIDE_TRIGGER")
+  local trigger
+  local pcName = GETMYPCNAME()
+  local mapName = session.GetMapName()
+  if (lastPcName == nil) then
+    trigger = TKGNOTIFIER_ENUM_TRIGGER.onLogined
+  elseif (lastPcName == pcName) then
+    if (lastMapName == mapName) then
+      trigger = TKGNOTIFIER_ENUM_TRIGGER.onChannelChanged
+    else
+      trigger = TKGNOTIFIER_ENUM_TRIGGER.onMapTransited
+    end
+  else
+    trigger = TKGNOTIFIER_ENUM_TRIGGER.onCharacterChanged
+  end
+  lastPcName = pcName
+  lastMapName = mapName
+  return trigger
+end
+
+---
 -- アドオン初期化処理.
 -- フレームワークからの呼び出しを期待しているため、直接呼び出さないこと.
 -- @local
@@ -169,10 +213,12 @@ function TKGNOTIFIER_ON_INIT(addon, frame)
     TKGNOTIFIER_PRINT_VERSION()
   end
 
+  local trigger = TKGNOTIFIER_DICIDE_TRIGGER()
+
   -- 関連機能へ設定値を通知
-  TKGNOTIFIER_FRAME_INIT(g.settings)
-  TKGNOTIFIER_ITEM_INIT(g.settings)
-  TKGNOTIFIER_MAIL_INIT(g.settings)
+  TKGNOTIFIER_FRAME_INIT(g.settings, trigger)
+  TKGNOTIFIER_ITEM_INIT(g.settings, trigger)
+  TKGNOTIFIER_MAIL_INIT(g.settings, trigger)
 
   if (#stack > 0) then
     TKGNOTIFIER_FRAME_ON_STACK_CHANGED(stack)

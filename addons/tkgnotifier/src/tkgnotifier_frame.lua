@@ -16,9 +16,11 @@ end
 ---
 -- UI管理機能の初期化処理.
 -- @param settings 設定値.
-function TKGNOTIFIER_FRAME_INIT(settings)
+function TKGNOTIFIER_FRAME_INIT(settings, trigger)
   log("TKGNOTIFIER_FRAME_INIT")
-  debugIsEnabled = settings and settings.debug and settings.debug.enable
+  if trigger == TKGNOTIFIER_ENUM_TRIGGER.onLogined then
+    debugIsEnabled = settings and settings.debug and settings.debug.enable
+  end
 end
 
 ---

@@ -3,36 +3,13 @@
 -- 期限が近いメールが存在する場合に通知する.
 
 ---
--- 通知トリガーの列挙.
--- @field none 通知なし.
--- @field onLogined ログイン時にのみ通知する.
--- @field onCharacterChanged ログイン時、キャラクター切替時に通知する.
--- @field onMapTransited ログイン時、キャラクター切替時、マップ移動時に通知する.
--- @field onChannelChanged ログイン時、キャラクター切替時、マップ移動時、チャンネル切り替え時に通知する.
--- @table TKGNOTIFIER_MAIL_ENUM_TRIGGER
-local TKGNOTIFIER_MAIL_ENUM_TRIGGER = {
-  none = 0,
-  onLogined = 1,
-  onCharacterChanged = 2,
-  onMapTransited = 3,
-  onChannelChanged = 4,
-}
-
----
 -- メール通知の設定.
 -- @field trigger メールの期限について通知すべきトリガー.
 -- @field threshold_day メールの期限について通知する閾値（単位: 日）.
 -- @table mailSettings
-local mailSettings = {
-  trigger = TKGNOTIFIER_MAIL_ENUM_TRIGGER.onLogined,
-  threshold_day = 7
-}
+local mailSettings
 -- デバッグ機能の有無.
 local debugIsEnabled = false
--- 最後に確認したキャラクター名.
-local lastPcName
--- 最後に確認したマップ名.
-local lastMapName
 -- この機能で使用する通知種別.
 local notificationKind = "TKGNOTIFIER_MAIL"
 -- リソース一覧.
@@ -102,37 +79,11 @@ function TKGNOTIFIER_MAIL_GET_NEAREST_EXPIRE_IN_DAY()
 end
 
 ---
--- 呼び出しタイミングから通知トリガーを同定する.
--- @return 通知トリガー.
--- @see TKGNOTIFIER_MAIL_ENUM_TRIGGER
-function TKGNOTIFIER_MAIL_DICIDE_TRIGGER()
-  log("TKGNOTIFIER_MAIL_DICIDE_TRIGGER")
-  local trigger
-  local pcName = GETMYPCNAME()
-  local mapName = session.GetMapName()
-  if (lastPcName == nil) then
-    trigger = TKGNOTIFIER_MAIL_ENUM_TRIGGER.onLogined
-  elseif (lastPcName == pcName) then
-    if (lastMapName == mapName) then
-      trigger = TKGNOTIFIER_MAIL_ENUM_TRIGGER.onChannelChanged
-    else
-      trigger = TKGNOTIFIER_MAIL_ENUM_TRIGGER.onMapTransited
-    end
-  else
-    trigger = TKGNOTIFIER_MAIL_ENUM_TRIGGER.onCharacterChanged
-  end
-  lastPcName = pcName
-  lastMapName = mapName
-  return trigger
-end
-
----
 -- 呼び出しタイミングと閾値が条件に合う場合、期限切れが近いメールの存在を通知する.
-function TKGNOTIFIER_MAIL_NOTIFY_IF_NEEDED()
+function TKGNOTIFIER_MAIL_NOTIFY_IF_NEEDED(trigger)
   log("TKGNOTIFIER_MAIL_NOTIFY_IF_NEEDED")
 
   -- 通知タイミングチェック
-  local trigger = TKGNOTIFIER_MAIL_DICIDE_TRIGGER()
   log(string.format("trigger=%d (settings=%d)", trigger, mailSettings.trigger))
   if (mailSettings.trigger < trigger) then
     return
@@ -152,13 +103,19 @@ function TKGNOTIFIER_MAIL_NOTIFY_IF_NEEDED()
 end
 
 ---
--- メール通知機能を初期化する.
+-- 指定した設定値を使用して設定を構築する.
 -- @param settings 設定値.
-function TKGNOTIFIER_MAIL_INIT(settings)
-  log("TKGNOTIFIER_MAIL_INIT")
+function TKGNOTIFIER_MAIL_LOAD_SETTINGS(settings)
+  log("TKGNOTIFIER_MAIL_LOAD_SETTINGS")
   log("loaded settings=" .. dump(settings))
 
   -- デフォルト設定
+  mailSettings = {
+    trigger = TKGNOTIFIER_ENUM_TRIGGER.onLogined,
+    threshold_day = 7
+  }
+
+  -- 指定された設定をマージ
   if settings then
     if settings.locale then
       local getResource = function(locale)
@@ -183,6 +140,18 @@ function TKGNOTIFIER_MAIL_INIT(settings)
   end
 
   log("actual settings=" .. dump(mailSettings))
+end
 
-  TKGNOTIFIER_MAIL_NOTIFY_IF_NEEDED()
+---
+-- メール通知機能を初期化する.
+-- @param settings 設定値.
+function TKGNOTIFIER_MAIL_INIT(settings, trigger)
+  log("TKGNOTIFIER_MAIL_INIT")
+
+  -- ログイン時のみ設定読み込み
+  if trigger == TKGNOTIFIER_ENUM_TRIGGER.onLogined then
+    TKGNOTIFIER_MAIL_LOAD_SETTINGS(settings)
+  end
+
+  TKGNOTIFIER_MAIL_NOTIFY_IF_NEEDED(trigger)
 end
