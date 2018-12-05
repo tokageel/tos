@@ -171,6 +171,7 @@ function TKGNOTIFIER_ON_INIT(addon, frame)
 
   -- 関連機能へ設定値を通知
   TKGNOTIFIER_FRAME_INIT(g.settings)
+  TKGNOTIFIER_ITEM_INIT(g.settings)
   TKGNOTIFIER_MAIL_INIT(g.settings)
 
   if (#stack > 0) then
