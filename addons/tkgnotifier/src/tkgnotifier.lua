@@ -160,6 +160,20 @@ function TKGNOIFIER_POP()
 end
 
 ---
+-- 指定したロケールに対応するリソースをリソーステーブルから探して返す.
+-- @param resources リソーステーブル. 少なくともENロケール用のリソースを含むこと.
+-- @param locale ロケール.
+-- @return 指定したロケールに対応するリソース. そのようなロケールが存在しなかった場合、ENロケール用のリソース.
+function TKGNOTIFIER_GET_RESOURCE(resources, locale)
+  for k, v in pairs(resources) do
+    if locale == k then
+      return v
+    end
+  end
+  return resources["EN"]
+end
+
+---
 -- 呼び出しタイミングから通知トリガーを同定する.
 -- @return 通知トリガー.
 -- @see TKGNOTIFIER_ENUM_TRIGGER

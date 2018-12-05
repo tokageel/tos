@@ -98,15 +98,7 @@ function TKGNOTIFIER_MEDAL_LOAD_SETTINGS(settings)
   -- 指定された設定をマージ
   if settings then
     if settings.locale then
-      local getResource = function(locale)
-        for k, v in pairs(resources) do
-          if locale == k then
-            return v
-          end
-        end
-        return resources["EN"]
-      end
-      R = getResource(settings.locale)
+      R = TKGNOTIFIER_GET_RESOURCE(resources, settings.locale)
     end
     if settings.medal then
       if settings.medal.trigger then
