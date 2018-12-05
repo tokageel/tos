@@ -1,12 +1,8 @@
 ---
--- メール通知機能.
+-- 期限付きメール通知機能.
 -- 期限が近いメールが存在する場合に通知する.
 
----
--- メール通知の設定.
--- @field trigger メールの期限について通知すべきトリガー.
--- @field threshold_day メールの期限について通知する閾値（単位: 日）.
--- @table mailSettings
+-- 期限付きメール通知の設定.
 local mailSettings
 -- デバッグ機能の有無.
 local debugIsEnabled = false
@@ -42,19 +38,6 @@ local function log(message)
   if debugIsEnabled then
     CHAT_SYSTEM(string.format("[TKGNOTIFIER_MAIL] %s", tostring(message)), "616161")
   end
-end
-
-local function dump(value)
-  if value and type(value) == "table" then
-    buf = "{"
-    for k, v in pairs(value) do
-      buf = buf .. string.format("%s: %s, ", k, dump(v))
-    end
-    buf = buf .. "}"
-    return buf
-  end
-
-  return tostring(value)
 end
 
 ---
@@ -107,7 +90,6 @@ end
 -- @param settings 設定値.
 function TKGNOTIFIER_MAIL_LOAD_SETTINGS(settings)
   log("TKGNOTIFIER_MAIL_LOAD_SETTINGS")
-  log("loaded settings=" .. dump(settings))
 
   -- デフォルト設定
   mailSettings = {
@@ -130,8 +112,6 @@ function TKGNOTIFIER_MAIL_LOAD_SETTINGS(settings)
     end
     debugIsEnabled = settings.debug and settings.debug.enable
   end
-
-  log("actual settings=" .. dump(mailSettings))
 end
 
 ---
@@ -141,7 +121,7 @@ function TKGNOTIFIER_MAIL_INIT(settings, trigger)
   log("TKGNOTIFIER_MAIL_INIT")
 
   -- ログイン時のみ設定読み込み
-  if trigger == TKGNOTIFIER_ENUM_TRIGGER.onLogined then
+  if trigger <= TKGNOTIFIER_ENUM_TRIGGER.onLogined then
     TKGNOTIFIER_MAIL_LOAD_SETTINGS(settings)
   end
 

@@ -2,16 +2,10 @@
 -- 期限付きアイテム通知機能.
 -- 期限が近いアイテムが存在する場合に通知する.
 
----
--- メール通知の設定.
--- @field trigger メールの期限について通知すべきトリガー.
--- @field threshold_day メールの期限について通知する閾値（単位: 日）.
--- @table ItemSettings
+-- 期限付きアイテム通知の設定.
 local itemSettings
 -- デバッグ機能の有無.
 local debugIsEnabled = false
--- この機能で使用する通知種別.
-local notificationKind = "TKGNOTIFIER_ITEM"
 -- リソース一覧.
 local resources = {
   EN = {
@@ -38,20 +32,6 @@ local function log(message)
   end
 end
 
-local function dump(value)
-  if value and type(value) == "table" then
-    buf = "{"
-    for k, v in pairs(value) do
-      buf = buf .. string.format("%s: %s, ", k, dump(v))
-    end
-    buf = buf .. "}"
-    return buf
-  end
-
-  return tostring(value)
-end
-
-
 ---
 -- 呼び出しタイミングと閾値が条件に合う場合、期限切れが近いメールの存在を通知する.
 function TKGNOTIFIER_ITEM_NOTIFY_IF_NEEDED()
@@ -74,11 +54,9 @@ function TKGNOTIFIER_ITEM_NOTIFY_IF_NEEDED()
         imcTime.GetSysTimeByStr(item.ItemLifeTime),
         geTime.GetServerSystemTime())
       local message = string.format(R.string.deadline_is_nearling, item.Name, remainInSec / 60 / 60 / 24)
-      local kind = string.format("%s_%s", notificationKind)
       TKGNOTIFIER_NOTIFY({
         icon = item.Icon,
-        message = message,
-        kind = kind
+        message = message
       })
     end
   end
@@ -89,12 +67,11 @@ end
 -- @param settings 設定値.
 function TKGNOTIFIER_ITEM_LOAD_SETTINGS(settings)
   log("TKGNOTIFIER_ITEM_LOAD_SETTINGS")
-  log("loaded settings=" .. dump(settings))
 
   -- デフォルト設定
   itemSettings = {
     trigger = TKGNOTIFIER_ENUM_TRIGGER.onCharacterChanged,
-    threshold_day = 3
+    threshold_day = 1
   }
 
   -- 指定された設定をマージ
@@ -112,8 +89,6 @@ function TKGNOTIFIER_ITEM_LOAD_SETTINGS(settings)
     end
     debugIsEnabled = settings.debug and settings.debug.enable
   end
-
-  log("actual settings=" .. dump(itemSettings))
 end
 
 ---
@@ -124,7 +99,7 @@ function TKGNOTIFIER_ITEM_INIT(settings, trigger)
   log("TKGNOTIFIER_ITEM_INIT")
 
   -- ログイン時のみ設定読み込み
-  if trigger == TKGNOTIFIER_ENUM_TRIGGER.onLogined then
+  if trigger <= TKGNOTIFIER_ENUM_TRIGGER.onLogined then
     TKGNOTIFIER_ITEM_LOAD_SETTINGS(settings)
   end
 

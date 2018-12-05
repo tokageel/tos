@@ -1,12 +1,8 @@
 ---
--- 無料TP通知機能.
+-- 無料TP蓄積通知機能.
 -- 無料TPが一定値以上蓄積した場合に通知する.
 
----
--- 無料TP通知の設定.
--- @field trigger 無料TPについて通知すべきトリガー.
--- @field threshold 無料TPについて通知する閾値（単位: ポイント）.
--- @table medalSettings
+-- 無料TP蓄積通知の設定.
 local medalSettings
 -- デバッグ機能の有無.
 local debugIsEnabled = false
@@ -44,19 +40,6 @@ local function log(message)
   end
 end
 
-local function dump(value)
-  if value and type(value) == "table" then
-    buf = "{"
-    for k, v in pairs(value) do
-      buf = buf .. string.format("%s: %s, ", k, dump(v))
-    end
-    buf = buf .. "}"
-    return buf
-  end
-
-  return tostring(value)
-end
-
 ---
 -- 呼び出しタイミングと閾値が条件に合う場合、期限切れが近いメールの存在を通知する.
 function TKGNOTIFIER_MEDAL_NOTIFY_IF_NEEDED(trigger)
@@ -87,7 +70,6 @@ end
 -- @param settings 設定値.
 function TKGNOTIFIER_MEDAL_LOAD_SETTINGS(settings)
   log("TKGNOTIFIER_MEDAL_LOAD_SETTINGS")
-  log("loaded settings=" .. dump(settings))
 
   -- デフォルト設定
   medalSettings = {
@@ -110,8 +92,6 @@ function TKGNOTIFIER_MEDAL_LOAD_SETTINGS(settings)
     end
     debugIsEnabled = settings.debug and settings.debug.enable
   end
-
-  log("actual settings=" .. dump(medalSettings))
 end
 
 ---
@@ -121,7 +101,7 @@ function TKGNOTIFIER_MEDAL_INIT(settings, trigger)
   log("TKGNOTIFIER_MEDAL_INIT")
 
   -- ログイン時のみ設定読み込み
-  if trigger == TKGNOTIFIER_ENUM_TRIGGER.onLogined then
+  if trigger <= TKGNOTIFIER_ENUM_TRIGGER.onLogined then
     TKGNOTIFIER_MEDAL_LOAD_SETTINGS(settings)
   end
 
