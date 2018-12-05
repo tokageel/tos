@@ -7,7 +7,7 @@
 -- @field trigger メールの期限について通知すべきトリガー.
 -- @field threshold_day メールの期限について通知する閾値（単位: 日）.
 -- @table ItemSettings
-local itemSettings = {}
+local itemSettings
 -- デバッグ機能の有無.
 local debugIsEnabled = false
 -- この機能で使用する通知種別.

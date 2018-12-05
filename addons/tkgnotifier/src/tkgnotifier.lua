@@ -213,10 +213,10 @@ function TKGNOTIFIER_ON_INIT(addon, frame)
     TKGNOTIFIER_PRINT_VERSION()
   end
 
-  local trigger = TKGNOTIFIER_DICIDE_TRIGGER()
-
   -- 関連機能へ設定値を通知
+  local trigger = TKGNOTIFIER_DICIDE_TRIGGER()
   TKGNOTIFIER_FRAME_INIT(g.settings, trigger)
+  TKGNOTIFIER_MEDAL_INIT(g.settings, trigger)
   TKGNOTIFIER_ITEM_INIT(g.settings, trigger)
   TKGNOTIFIER_MAIL_INIT(g.settings, trigger)
 
