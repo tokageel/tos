@@ -34,11 +34,10 @@ end
 
 ---
 -- 呼び出しタイミングと閾値が条件に合う場合、期限切れが近いメールの存在を通知する.
-function TKGNOTIFIER_ITEM_NOTIFY_IF_NEEDED()
+function TKGNOTIFIER_ITEM_NOTIFY_IF_NEEDED(trigger)
   log("TKGNOTIFIER_ITEM_NOTIFY_IF_NEEDED")
 
   -- 通知タイミングチェック
-  local trigger = TKGNOTIFIER_ITEM_DICIDE_TRIGGER()
   log(string.format("trigger=%d (settings=%d)", trigger, itemSettings.trigger))
   if (itemSettings.trigger < trigger) then
     return
