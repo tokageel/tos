@@ -215,7 +215,9 @@ function TKGNOTIFIER_ON_INIT(addon, frame)
   -- 設定読み込み
   if not g.loaded then
     -- デフォルト設定
-    g.settings = {}
+    g.settings = {
+      locale = "JP"
+    }
     log("loadJSON")
     local settingsFilePath = string.format("../addons/%s/settings.json", string.lower(Addon.name))
 
