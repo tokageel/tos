@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<uiframe name="tkgdebugger">
-    <controls/>
+<uiframe name="tkgdebugger" x="0" y="0" width="500" height="200" create="open">
+    <frame snapclient="true" snapframe="true" layout_gravity="center center" />
+    <option closebutton="true" visible="true"/>
+    <draw drawtitlebar="false" drawframe="true"/>
+    <layer layerlevel="31"/>
+    <input moveable="true" hittestframe="true" moveintitlebar="false" hittest="true"/>
+    <skin frameskin="chat_window"/>
+    <controls>
+        <textview name="log_text"
+                  rect="0 0 480 180"
+                  margin="10 10 10 10"/>
+    </controls>
 </uiframe>

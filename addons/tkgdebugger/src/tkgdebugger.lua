@@ -19,6 +19,7 @@ _G["ADDONS"][Addon.author] = _G["ADDONS"][Addon.author] or {}
 _G["ADDONS"][Addon.author][Addon.name] = _G["ADDONS"][Addon.author][Addon.name] or {}
 local g = _G["ADDONS"][Addon.author][Addon.name]
 g.version = Addon.version
+g.logBuffer = {}
 
 ---
 -- タイムスタンプ文字列取得.
@@ -32,7 +33,44 @@ function TKGDEBUGGER_GET_TIME_STAMP()
 end
 
 function TKGDEBUGGER_LOG(message)
-    CHAT_SYSTEM(string.format("[TKGDEBUGGER] %s", tostring(message)), "616161")
+  --CHAT_SYSTEM(string.format("[TKGDEBUGGER] %s", tostring(message)), "616161")
+  local frame = ui.GetFrame("tkgdebugger")
+  if frame == nil then
+    return
+  end
+  if (frame:IsVisible() == 0) then
+    ui.OpenFrame("tkgdebugger")
+  end
+
+  local safeMessage = tostring(message)
+  table.insert(g.logBuffer, safeMessage)
+  local logText = GET_CHILD(frame, "log_text")
+  logText:AddText(safeMessage)
+  frame:Invalidate()
+end
+
+function TKGDEBUGGER_CLEAR()
+  local frame = ui.GetFrame("tkgdebugger")
+  if frame == nil then
+    return
+  end
+  g.glogBuffer = {}
+  local logText = GET_CHILD(frame, "log_text")
+  logText:Clear()
+  frame:Invalidate()
+end
+
+function TKGDEBUGGER_DUMP_TO_FILE(filename)
+  local file, err = io.open(filename, "w")
+  if file then
+    for _, text in pairs(g.logBuffer) do
+      file:write(tostring(text), "\n")
+    end
+    file:flush()
+    file:close()
+  else
+    TKGDEBUGGER_LOG(tostring(err))
+  end
 end
 
 ---
@@ -40,7 +78,7 @@ end
 -- @param addon アドオン.
 -- @param frame アドオンのフレーム.
 function TKGDEBUGGER_ON_INIT(addon, frame)
-  log("TKGDEBUGGER_ON_INIT")
+  CHAT_SYSTEM("TKGDEBUGGER_ON_INIT")
   g.addon = addon
   g.frame = frame
 end
