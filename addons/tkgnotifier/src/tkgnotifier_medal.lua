@@ -71,27 +71,13 @@ end
 function TKGNOTIFIER_MEDAL_LOAD_SETTINGS(settings)
   log("TKGNOTIFIER_MEDAL_LOAD_SETTINGS")
 
-  -- デフォルト設定
-  medalSettings = {
-    trigger = TKGNOTIFIER_ENUM_TRIGGER.onLogined,
-    threshold = 5
-  }
+  medalSettings = settings.medal
 
   -- 指定された設定をマージ
-  if settings then
-    if settings.locale then
-      R = TKGNOTIFIER_GET_RESOURCE(resources, settings.locale)
-    end
-    if settings.medal then
-      if settings.medal.trigger then
-        medalSettings.trigger = settings.medal.trigger
-      end
-      if settings.medal.threshold then
-        medalSettings.threshold = math.max(0, math.min(5, settings.medal.threshold))
-      end
-    end
-    debugIsEnabled = settings.debug and settings.debug.enable
+  if settings.locale then
+    R = TKGNOTIFIER_GET_RESOURCE(resources, settings.locale)
   end
+  debugIsEnabled = settings.debug and settings.debug.enable
 end
 
 ---

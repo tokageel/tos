@@ -66,28 +66,11 @@ end
 -- @param settings 設定値.
 function TKGNOTIFIER_ITEM_LOAD_SETTINGS(settings)
   log("TKGNOTIFIER_ITEM_LOAD_SETTINGS")
-
-  -- デフォルト設定
-  itemSettings = {
-    trigger = TKGNOTIFIER_ENUM_TRIGGER.onCharacterChanged,
-    threshold_day = 1
-  }
-
-  -- 指定された設定をマージ
-  if settings then
-    if settings.locale then
-      R = TKGNOTIFIER_GET_RESOURCE(resources, settings.locale)
-    end
-    if settings.item then
-      if settings.item.trigger then
-        itemSettings.trigger = settings.item.trigger
-      end
-      if settings.item.threshold_day then
-        itemSettings.threshold_day = settings.item.threshold_day
-      end
-    end
-    debugIsEnabled = settings.debug and settings.debug.enable
+  itemSettings = settings.item
+  if settings.locale then
+    R = TKGNOTIFIER_GET_RESOURCE(resources, settings.locale)
   end
+  debugIsEnabled = settings.debug and settings.debug.enable
 end
 
 ---

@@ -216,7 +216,19 @@ function TKGNOTIFIER_ON_INIT(addon, frame)
   if not g.loaded then
     -- デフォルト設定
     g.settings = {
-      locale = "JP"
+      locale = "JP",
+      mail = {
+        trigger = TKGNOTIFIER_ENUM_TRIGGER.onLogined,
+        threshold_day = 7
+      },
+      medal = {
+        trigger = TKGNOTIFIER_ENUM_TRIGGER.onLogined,
+        threshold = 5
+      },
+      item = {
+        trigger = TKGNOTIFIER_ENUM_TRIGGER.onCharacterChanged,
+        threshold_day = 1
+      }
     }
     log("loadJSON")
     local settingsFilePath = string.format("../addons/%s/settings.json", string.lower(Addon.name))
@@ -224,11 +236,18 @@ function TKGNOTIFIER_ON_INIT(addon, frame)
     local acutil = require("acutil")
     local settings, err = acutil.loadJSON(settingsFilePath, g.settings)
     if not err then
+      -- マージした設定値の検証
       g.settings = settings
+      g.settings.mail.threshold_day = math.max(1, settings.mail.threshold_day)
+      g.settings.item.threshold_day = math.max(1, settings.mail.threshold_day)
+      g.settings.medal.threshold = math.max(1, math.min(5, settings.medal.threshold))
+
       debugIsEnabled = settings and settings.debug and settings.debug.enable
     else
       log(tostring(err))
     end
+    -- 設定画面は初回ロード時にのみ初期化処理
+    TKGNOTIFIER_SETTINGS_INIT(g.settings)
     TKGNOTIFIER_PRINT_VERSION()
   end
 

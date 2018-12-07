@@ -91,27 +91,12 @@ end
 function TKGNOTIFIER_MAIL_LOAD_SETTINGS(settings)
   log("TKGNOTIFIER_MAIL_LOAD_SETTINGS")
 
-  -- デフォルト設定
-  mailSettings = {
-    trigger = TKGNOTIFIER_ENUM_TRIGGER.onLogined,
-    threshold_day = 7
-  }
-
+  mailSettings = settings.mail
   -- 指定された設定をマージ
-  if settings then
-    if settings.locale then
-      R = TKGNOTIFIER_GET_RESOURCE(resources, settings.locale)
-    end
-    if settings.mail then
-      if settings.mail.trigger then
-        mailSettings.trigger = settings.mail.trigger
-      end
-      if settings.mail.threshold_day then
-        mailSettings.threshold_day = settings.mail.threshold_day
-      end
-    end
-    debugIsEnabled = settings.debug and settings.debug.enable
+  if settings.locale then
+    R = TKGNOTIFIER_GET_RESOURCE(resources, settings.locale)
   end
+  debugIsEnabled = settings.debug and settings.debug.enable
 end
 
 ---
