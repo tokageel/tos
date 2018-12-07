@@ -53,6 +53,8 @@ _G["ADDONS"][Addon.author][Addon.name] = _G["ADDONS"][Addon.author][Addon.name] 
 local g = _G["ADDONS"][Addon.author][Addon.name]
 -- デバッグ機能の有無.
 local debugIsEnabled = false
+-- 最後に確認したサーバID.
+local lastServerId
 -- 最後に確認したキャラクター名.
 local lastPcName
 -- 最後に確認したマップ名.
@@ -185,7 +187,8 @@ function TKGNOTIFIER_DICIDE_TRIGGER()
   local trigger
   local pcName = GETMYPCNAME()
   local mapName = session.GetMapName()
-  if (lastPcName == nil) then
+  local serverId = GetServerGroupID()
+  if (lastServerId ~= serverId) or (lastPcName == nil) then
     trigger = TKGNOTIFIER_ENUM_TRIGGER.onLogined
   elseif (lastPcName == pcName) then
     if (lastMapName == mapName) then
@@ -196,6 +199,7 @@ function TKGNOTIFIER_DICIDE_TRIGGER()
   else
     trigger = TKGNOTIFIER_ENUM_TRIGGER.onCharacterChanged
   end
+  lastServerId = serverId
   lastPcName = pcName
   lastMapName = mapName
   return trigger
@@ -237,22 +241,26 @@ function TKGNOTIFIER_ON_INIT(addon, frame)
     local settings, err = acutil.loadJSON(settingsFilePath, g.settings)
     if not err then
       -- マージした設定値の検証
-      g.settings = settings
-      g.settings.mail.threshold_day = math.max(1, settings.mail.threshold_day)
-      g.settings.item.threshold_day = math.max(1, settings.mail.threshold_day)
-      g.settings.medal.threshold = math.max(1, math.min(5, settings.medal.threshold))
-
       debugIsEnabled = settings and settings.debug and settings.debug.enable
+      local validate = function(val, min, max)
+        return math.max(min, math.min(max, val))
+      end
+      settings.mail.trigger = validate(settings.mail.trigger, 0, 4)
+      settings.mail.threshold_day = math.max(1, settings.mail.threshold_day)
+      settings.item.trigger = validate(settings.item.trigger, 0, 4)
+      settings.item.threshold_day = math.max(1, settings.item.threshold_day)
+      settings.medal.trigger = validate(settings.medal.trigger, 0, 4)
+      settings.medal.threshold = validate(settings.medal.threshold, 1, 5)
+      g.settings = settings
     else
       log(tostring(err))
     end
-    -- 設定画面は初回ロード時にのみ初期化処理
-    TKGNOTIFIER_SETTINGS_INIT(g.settings)
     TKGNOTIFIER_PRINT_VERSION()
   end
 
   -- 関連機能へ設定値を通知
   local trigger = TKGNOTIFIER_DICIDE_TRIGGER()
+  TKGNOTIFIER_SETTINGS_INIT(g.settings)
   TKGNOTIFIER_FRAME_INIT(g.settings, trigger)
   TKGNOTIFIER_MEDAL_INIT(g.settings, trigger)
   TKGNOTIFIER_ITEM_INIT(g.settings, trigger)

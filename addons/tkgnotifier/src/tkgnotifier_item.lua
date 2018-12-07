@@ -21,7 +21,7 @@ local resources = {
 }
 
 -- リソース.
-local R = resources.EN
+local R = resources.JP
 
 ---
 -- 指定した文字列をシステムログとしてチャットウィンドウへ出力する.

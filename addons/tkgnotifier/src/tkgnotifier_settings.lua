@@ -48,7 +48,7 @@ local resources = {
   }
 }
 -- リソース.
-local R = resources.EN
+local R = resources.JP
 
 -- 閾値（日）ドロップリスト項目一覧.
 local thresholdDays = {
