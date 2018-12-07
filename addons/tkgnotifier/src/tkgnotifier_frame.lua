@@ -36,7 +36,7 @@ function TKGNOTIFIER_FRAME_OPEN(frame)
 
   -- クエスト欄の上辺りに画面右詰めで表示
   local questFrame = ui.GetFrame("questinfoset_2")
-  if questFrame and questFrame:IsVisible() then
+  if questFrame then
     x = questFrame:GetX() + (questFrame:GetWidth() - frame:GetWidth())
     y = questFrame:GetY() - frame:GetHeight()
   end
