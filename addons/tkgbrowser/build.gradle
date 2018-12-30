@@ -4,6 +4,6 @@
 apply plugin: com.github.tokageel.ipf.IpfPlugin
 buildscript {
   dependencies {
-    classpath files('../gradle-ipf-plugin-0.0.1.jar')
+    classpath files('../gradle-ipf-plugin-0.0.2.jar')
   }
 }
