@@ -42,7 +42,7 @@ TKGNOTIFIER_ENUM_TRIGGER = {
 local Addon = {
   name = "TKGNOTIFIER",
   author = "TOKAGEEL",
-  version = "1.0.0",
+  version = "1.0.1",
   apiVersion = 1
 }
 
