@@ -37,8 +37,18 @@ function TKGNOTIFIER_FRAME_OPEN(frame)
   -- クエスト欄の上辺りに画面右詰めで表示
   local questFrame = ui.GetFrame("questinfoset_2")
   if questFrame then
-    x = questFrame:GetX() + (questFrame:GetWidth() - frame:GetWidth())
-    y = questFrame:GetY() - frame:GetHeight()
+    local sceneRatio = ui.GetSceneHeight() / ui.GetSceneWidth()
+    local baseRatio = ui.GetClientInitialHeight() / ui.GetClientInitialWidth()
+    local screenWidth
+    if sceneRatio >= baseRatio then
+      screenWidth = math.min(2 * ui.GetSceneWidth(), ui.GetClientInitialWidth())
+    else
+      local screenHeight = math.min(2 * ui.GetSceneHeight(), ui.GetClientInitialHeight())
+      screenWidth = screenHeight / sceneRatio
+    end
+
+    x = screenWidth - frame:GetWidth() - 10
+    y = questFrame:GetY() - frame:GetHeight() - 10
   end
   frame:SetOffset(x, y)
 end
