@@ -52,11 +52,13 @@ function TKGNOTIFIER_ITEM_NOTIFY_IF_NEEDED(trigger)
       local remainInSec = imcTime.GetDifSec(
         imcTime.GetSysTimeByStr(item.ItemLifeTime),
         geTime.GetServerSystemTime())
-      local message = string.format(R.string.deadline_is_nearling, item.Name, remainInSec / 60 / 60 / 24)
-      TKGNOTIFIER_NOTIFY({
-        icon = item.Icon,
-        message = message
-      })
+      if remainInSec > 0 then
+        local message = string.format(R.string.deadline_is_nearling, item.Name, remainInSec / 60 / 60 / 24)
+        TKGNOTIFIER_NOTIFY({
+          icon = item.Icon,
+          message = message
+        })
+      end
     end
   end
 end
