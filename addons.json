@@ -24,5 +24,18 @@
       "notify",
       "indun"
     ]
+  },
+  {
+    "name" : "TKGCASTLEPROGRESS",
+    "file" : "tkgcastleprogress",
+    "extension" : "ipf",
+    "fileVersion" : "v1.0.0",
+    "releaseTag" : "TKGCASTLEPROGRESS_v1.0.0",
+    "unicode" : "🦎",
+    "description" : "サルラス修道院のキャッスルミッションで、進捗度（ボスの出現具合）を目につく位置に表示します.",
+    "tags" : [
+      "notify",
+      "indun"
+    ]
   }
 ]
