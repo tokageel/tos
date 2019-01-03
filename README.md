@@ -12,3 +12,8 @@ ToS関連のもろもろ。
 
 ## 連絡先
 [@leopa_tos](https://twitter.com/leopa_tos) 
+
+## バグ報告・要望等
+* Issues/Twitterで受けます
+* アカウントがない方は[フォーム](https://goo.gl/forms/7z8orkCSeKhMyBtO2) からどうぞ
+
