@@ -2,7 +2,7 @@
 
 ## Descriptions
 
-サルラス修道院のキャッスルミッションで、進捗率（ボスの出現具合）を目につく位置に表示するアドオンです。
+サルラス修道院のキャッスルミッションで、進捗度（ボスの出現具合）を目につく位置に表示するアドオンです。
 
 ![tkgcastleprogressimage](./img/tkgcastleprogress_image.jpg "イメージ")
 
