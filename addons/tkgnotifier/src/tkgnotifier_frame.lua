@@ -68,7 +68,7 @@ end
 -- @param argNum 引数の数.
 function TKGNOTIFIER_FRAME_ON_CLICKED(frame, ctrl, argStr, argNum)
   log("TKGNOTIFIER_FRAME_ON_CLICKED")
-  TKGNOIFIER_POP()
+  TKGNOTIFIER_POP()
 end
 
 ---

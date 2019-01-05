@@ -145,7 +145,7 @@ end
 ---
 -- 直近の通知を削除する.
 -- 削除した通知がコールバック関数を指定されている場合、コールバック関数を呼び出す.
-function TKGNOIFIER_POP()
+function TKGNOTIFIER_POP()
   log("TKGNOTIFIER_POP")
   local action
   if #stack > 0 then
