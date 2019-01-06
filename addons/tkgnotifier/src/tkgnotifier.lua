@@ -182,8 +182,8 @@ end
 -- 呼び出しタイミングから通知トリガーを同定する.
 -- @return 通知トリガー.
 -- @see TKGNOTIFIER_ENUM_TRIGGER
-function TKGNOTIFIER_DICIDE_TRIGGER()
-  log("TKGNOTIFIER_DICIDE_TRIGGER")
+function TKGNOTIFIER_DECIDE_TRIGGER()
+  log("TKGNOTIFIER_DECIDE_TRIGGER")
   local trigger
   local pcName = GETMYPCNAME()
   local mapName = session.GetMapName()
@@ -259,7 +259,7 @@ function TKGNOTIFIER_ON_INIT(addon, frame)
   end
 
   -- 関連機能へ設定値を通知
-  local trigger = TKGNOTIFIER_DICIDE_TRIGGER()
+  local trigger = TKGNOTIFIER_DECIDE_TRIGGER()
   TKGNOTIFIER_SETTINGS_INIT(g.settings)
   TKGNOTIFIER_FRAME_INIT(g.settings, trigger)
   TKGNOTIFIER_MEDAL_INIT(g.settings, trigger)
