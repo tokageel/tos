@@ -100,7 +100,7 @@ function TKGNOTIFIER_SETTINGS_UPDATE(parent)
       threshold = GET_CHILD_RECURSIVELY(frame, "tkgnotifier_medal_threshold_droplist")
     }
   }
-  for k, v in pairs(allDroplist) do
+  for _, v in pairs(allDroplist) do
     if (v.trigger == nil) or (v.threshold == nil) then
       log("drop list is not avalable")
       return
@@ -170,8 +170,7 @@ local function TKGNOTIFIER_SETTINGS_CREATE_OR_GET_GROUP(caption)
     gbox:SetSkinName("")
 
     -- 水平線を追加
-    local boardLine = gbox:CreateOrGetControl(
-      "labelline", "tkgnotifier_labelline", 0, 0, gbox:GetWidth(), 4)
+    gbox:CreateOrGetControl("labelline", "tkgnotifier_labelline", 0, 0, gbox:GetWidth(), 4)
     -- タイトルラベルを追加
     local title = gbox:CreateOrGetControl(
       "richtext", "tkgnotifier_title", 0, 0, gbox:GetWidth(), 10);
