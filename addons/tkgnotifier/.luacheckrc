@@ -4,7 +4,6 @@ read_globals = {
   "GETMYPCNAME",
   "GetMyAccountObj",
   "GetServerGroupID",
-  "geTime",
   "GET_CHILD",
   "GET_CHILD_RECURSIVELY",
   "GET_SCHEDULED_TO_EXPIRED_ITEM_LIST",
