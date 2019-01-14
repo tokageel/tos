@@ -76,8 +76,12 @@ function TKGDUMP_DUMP()
       table.sort(sortedMembers, sortIgnoreCase)
 
       file:write(string.format("%s = {\n", name))
-      for _, v in pairs(sortedMembers) do
-        file:write(string.format("  %s: %s\n", v, type(_G[name][v])))
+      if name == "TEXT_ZONENAMELIST" or name == "TEXT_MONNAMELIST" or name == "ZONENAME_LIST" or name == "ZONENAME_LIST_LV" then
+          file:write(string.format("  (omitted)\n"))
+      else
+        for _, v in pairs(sortedMembers) do
+          file:write(string.format("  %s: %s\n", v, type(_G[name][v])))
+        end
       end
       file:write("}\n")
     end
