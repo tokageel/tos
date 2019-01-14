@@ -213,4 +213,7 @@ gradle-app.setting
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
 
-
+### Manual editing
+# Ignore IDEA settings
+.idea
+*.iml
