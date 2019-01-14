@@ -25,7 +25,7 @@ local function dump(root, rootName)
     elseif aType == "userdata" then
       table.insert(uds, k)
     elseif aType == "table" then
-      if k ~= root then
+      if k ~= "_G" then
         table.insert(tables, k)
       end
     else
