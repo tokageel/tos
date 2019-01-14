@@ -84,7 +84,8 @@ local function dump(root, rootName)
       table.sort(sortedMembers, sortIgnoreCase)
 
       file:write(string.format("%s = {\n", name))
-      if name == "TEXT_ZONENAMELIST" or name == "TEXT_MONNAMELIST" or name == "ZONENAME_LIST" or name == "ZONENAME_LIST_LV" then
+      if name == "TEXT_ZONENAMELIST" or name == "TEXT_MONNAMELIST" or
+          name == "ZONENAME_LIST" or name == "ZONENAME_LIST_LV" then
         file:write(string.format("  (omitted)\n"))
       else
         for _, v in pairs(sortedMembers) do

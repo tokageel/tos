@@ -1,6 +1,8 @@
 read_globals = {
   "CHAT_SYSTEM",
-  "TKGDEBUGGER_LOG"
+  "session",
+  "TKGDEBUGGER_LOG",
+  "ui",
 }
 globals = {
   "TKGDUMP_DUMP",
